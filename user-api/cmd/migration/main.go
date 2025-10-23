@@ -61,7 +61,7 @@ func runMigrationCommand(log *logrus.Logger) {
 		log.WithError(err).Fatal("failed to prepare database")
 	}
 
-	runMigrations(db, direction, log)
+	runMigrations(db, direction, env.Migration.Env, log)
 
 	// run on test database in development
 	if env.Migration.Env == "development" {
@@ -69,7 +69,7 @@ func runMigrationCommand(log *logrus.Logger) {
 		if err != nil {
 			log.WithField("dsn", env.testDatabaseDsn()).WithError(err).Fatal("failed to prepare test database")
 		}
-		runMigrations(dbTest, direction, log)
+		runMigrations(dbTest, direction, "test", log)
 	}
 }
 
@@ -84,7 +84,7 @@ func runSeedCommand(log *logrus.Logger) {
 		log.WithError(err).Fatal("failed to prepare database")
 	}
 
-	runSeeds(db, log)
+	runSeeds(db, env.Migration.Env, log)
 }
 
 func prepareDatabase(dsn string) (*sql.DB, error) {
@@ -107,35 +107,35 @@ func prepareDatabase(dsn string) (*sql.DB, error) {
 	return sqlDB, nil
 }
 
-func runMigrations(db *sql.DB, direction string, log *logrus.Logger) {
+func runMigrations(db *sql.DB, direction, envName string, log *logrus.Logger) {
 	migrationDir := filepath.Join("migrations")
 	goose.SetTableName("migration_history")
 
 	switch direction {
 	case "up":
 		if err := goose.Up(db, migrationDir); err != nil {
-			log.WithField("dir", migrationDir).WithError(err).Fatal("failed to run migrations")
+			log.WithField("dir", migrationDir).WithField("env", envName).WithError(err).Fatal("failed to run migrations")
 		}
-		log.WithField("dir", migrationDir).Info("migrations applied successfully")
+		log.WithField("dir", migrationDir).WithField("env", envName).Info("migrations applied successfully")
 	case "down":
 		if err := goose.Down(db, migrationDir); err != nil {
-			log.WithField("dir", migrationDir).WithError(err).Fatal("failed to rollback migrations")
+			log.WithField("dir", migrationDir).WithField("env", envName).WithError(err).Fatal("failed to rollback migrations")
 		}
-		log.WithField("dir", migrationDir).Info("migrations rolled back successfully")
+		log.WithField("dir", migrationDir).WithField("env", envName).Info("migrations rolled back successfully")
 	default:
-		log.WithField("direction", direction).Fatal("invalid migration direction, use 'up' or 'down'")
+		log.WithField("direction", direction).WithField("env", envName).Fatal("invalid migration direction, use 'up' or 'down'")
 	}
 }
 
-func runSeeds(db *sql.DB, log *logrus.Logger) {
+func runSeeds(db *sql.DB, envName string, log *logrus.Logger) {
 	seedDir := filepath.Join("migrations", "seeds")
 	goose.SetTableName("seed_history")
 
 	if err := goose.Up(db, seedDir); err != nil {
-		log.WithField("dir", seedDir).WithError(err).Fatal("failed to run seeds")
+		log.WithField("dir", seedDir).WithField("env", envName).WithError(err).Fatal("failed to run seeds")
 	}
 
-	log.WithField("dir", seedDir).Info("seeds applied successfully")
+	log.WithField("dir", seedDir).WithField("env", envName).Info("seeds applied successfully")
 }
 
 func createNewMigration(name string, log *logrus.Logger) {
