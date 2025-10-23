@@ -2,16 +2,18 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/pujidjayanto/choochoohub/user-api/bootstrap"
+	"github.com/pujidjayanto/choochoohub/user-api/pkg/logger"
 )
 
 func main() {
+	log := logger.GetLogger()
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
