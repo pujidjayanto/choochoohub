@@ -11,7 +11,7 @@ type User struct {
 	ID           uuid.UUID `gorm:"primaryKey"`
 	Email        string    `gorm:"not null;unique"`
 	PasswordHash string    `gorm:"not null"`
-	UserType     string    `gorm:"type:varchar(20);not null;default:'unverified'"`
+	UserType     UserType  `gorm:"type:varchar(20);not null;default:'unverified'"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	Profile      *UserProfile `gorm:"constraint:OnDelete:CASCADE;"`

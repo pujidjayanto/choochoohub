@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/pujidjayanto/choochoohub/user-api/api"
 	"github.com/pujidjayanto/choochoohub/user-api/pkg/db"
+	"github.com/pujidjayanto/choochoohub/user-api/pkg/logger"
 	"github.com/pujidjayanto/choochoohub/user-api/repository"
 	"github.com/pujidjayanto/choochoohub/user-api/usecase"
 	"gorm.io/gorm"
@@ -35,9 +36,10 @@ func NewApplicationServer() (*http.Server, CleanupFunc, error) {
 	repositories := repository.NewDependency(database)
 	usecases := usecase.NewDependency(repositories)
 	apis := api.NewDependency(usecases)
+	log := logger.GetLogger()
 
 	router := echo.New()
-	routes(router, apis)
+	routes(router, apis, log)
 
 	server := &http.Server{
 		Addr:         GetServerPort(),
