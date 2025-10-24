@@ -26,7 +26,7 @@ create-seed:
 run:
 	go run ./cmd/user-api
 
-# Generate mocks for all interfaces in key directories
+# Generate mocks
 mocks:
 	@echo "Cleaning old mocks..."
 	@rm -rf ./mocks
@@ -41,7 +41,6 @@ mocks:
 
 	# ----- Repository -----
 	@mockgen -source=./repository/user.go -package=mocks -destination=./mocks/mock_user_repository.go
-	@mockgen -source=./repository/user_test.go -package=mocks -destination=./mocks/mock_user_test.go
 
 	# ----- Usecase -----
 	@mockgen -source=./usecase/signin.go -package=mocks -destination=./mocks/mock_signin_usecase.go
