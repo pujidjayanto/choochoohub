@@ -1,7 +1,10 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
+	"github.com/pujidjayanto/choochoohub/user-api/dto"
 	"github.com/pujidjayanto/choochoohub/user-api/usecase"
 )
 
@@ -18,5 +21,15 @@ func NewSignUpController(usecase usecase.SignUpUsecase) SignUpController {
 }
 
 func (signUpController *signUpController) SignUp(c echo.Context) error {
-	return nil
+	var req dto.SignupRequest
+	if err := c.Bind(&req); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	err := signUpController.usecase.Create(c.Request().Context(), req)
+	if err != nil {
+		return c.String(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }

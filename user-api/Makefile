@@ -2,7 +2,7 @@
 
 # Run migrations up
 migrate:
-	go run ./cmd/migration -migrate up
+	go run ./cmd/migration -migrate -- up
 
 # Rollback migrations (last batch)
 rollback:

@@ -1,25 +1,40 @@
 -- +goose Up
 -- +goose StatementBegin
-create table users (
-  id uuid primary key,
-  email varchar(255) not null unique,
-  password text not null,
-  phone varchar(20) not null unique,
-  name varchar(255) not null,
-  dob date,
-  gender char(1) not null,
-  identity_number varchar(50),
-  identity_type varchar(20),
-  created_at timestamptz not null,
-  updated_at timestamptz not null
+CREATE TABLE users (
+  id UUID PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  user_type VARCHAR(20) NOT NULL DEFAULT 'unverified',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-create index idx_users_name on users (name);
-create index idx_users_phone on users (phone);
-create index idx_users_identity_number on users (identity_number);
+CREATE INDEX idx_users_email ON users (email);
+
+CREATE TABLE user_profiles (
+  id UUID PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  phone VARCHAR(20) UNIQUE,
+  name VARCHAR(255) NOT NULL,
+  dob DATE NOT NULL,
+  gender CHAR(1) NOT NULL,
+  identity_number VARCHAR(50) NOT NULL,
+  identity_type VARCHAR(10) NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX idx_user_profiles_user_id ON user_profiles(user_id);
+
+CREATE UNIQUE INDEX idx_unique_non_null_phone
+ON user_profiles (phone) WHERE phone IS NOT NULL;
+
+CREATE UNIQUE INDEX idx_unique_non_null_identity
+ON user_profiles (identity_type, identity_number);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-drop table if exists users;
+DROP TABLE IF EXISTS user_profiles;
+DROP TABLE IF EXISTS users;
 -- +goose StatementEnd

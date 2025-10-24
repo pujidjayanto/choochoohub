@@ -16,7 +16,7 @@ type userRepository struct {
 }
 
 func (r *userRepository) Create(ctx context.Context, user *model.User) error {
-	return r.db.GetDB(ctx).Create(user).Error
+	return r.db.GetDB(ctx).Create(user).Debug().Error
 }
 
 func NewUserRepository(db db.DatabaseHandler) UserRepository {

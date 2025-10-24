@@ -56,7 +56,9 @@ func runMigrationCommand(log *logrus.Logger) {
 		log.WithError(err).Fatal("failed to load configuration")
 	}
 
-	db, err := prepareDatabase(env.databseDsn())
+	log.WithField("dsn", env.databaseDsn()).Info("database dsn")
+
+	db, err := prepareDatabase(env.databaseDsn())
 	if err != nil {
 		log.WithError(err).Fatal("failed to prepare database")
 	}
@@ -79,7 +81,7 @@ func runSeedCommand(log *logrus.Logger) {
 		log.WithError(err).Fatal("failed to load configuration")
 	}
 
-	db, err := prepareDatabase(env.databseDsn())
+	db, err := prepareDatabase(env.databaseDsn())
 	if err != nil {
 		log.WithError(err).Fatal("failed to prepare database")
 	}

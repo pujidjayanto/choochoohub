@@ -62,7 +62,7 @@ func loadConfiguration() (*Config, error) {
 	}, nil
 }
 
-func (e *Config) databseDsn() string {
+func (e *Config) databaseDsn() string {
 	return fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=UTC",
 		e.Database.Host,

@@ -6,5 +6,6 @@ import (
 )
 
 func routes(router *echo.Echo, apis api.Dependency) {
-	router.POST("/signup", apis.SignUpController.SignUp)
+	v1 := router.Group("v1")
+	v1.POST("/signup", apis.SignUpController.SignUp)
 }
