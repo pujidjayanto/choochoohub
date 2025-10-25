@@ -44,6 +44,7 @@ jobs:
         uses: golangci/golangci-lint-action@v5
         with:
           version: v1.58.1
+          working-directory: user-api
           args: --timeout 5m
 
       - name: Install Goose
