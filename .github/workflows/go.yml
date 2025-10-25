@@ -41,7 +41,7 @@ jobs:
         run: go mod download
 
       - name: Build Migration Binary
-        run: go build -o migrator ./cmd/migration
+        run: go build -o migration ./cmd/migration
 
       - name: Run database migrations with Migrator
         run: |
@@ -49,7 +49,7 @@ jobs:
 
           echo "Running migration binary..."
 
-          ./migrator up
+          ./migration migrate up
 
       - name: Run Tests
         run: go test -v ./...
