@@ -45,7 +45,11 @@ jobs:
         with:
           version: v1.58.1
           working-directory: user-api
-          args: --timeout 5m --skip-dirs migrations --verbose
+          args: |
+            --timeout 5m
+            --exclude-dirs migrations
+            --exclude-files .env
+            --verbose
 
       - name: Install Goose
         run: go install github.com/pressly/goose/v3/cmd/goose@latest
