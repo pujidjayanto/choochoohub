@@ -40,23 +40,16 @@ jobs:
       - name: Download Dependencies
         run: go mod download
 
-      - name: Install Goose
-        run: go install github.com/pressly/goose/v3/cmd/goose@latest
+      - name: Build Migration Binary
+        run: go build -o migrator ./cmd/migration
 
-      - name: Run database migrations with Goose
+      - name: Run database migrations with Migrator
         run: |
-          if [ -f ".env" ]; then
-            set -a
-            source .env
-            set +a
-          else
-            echo ".env file not found. Ensure the 'Copy CI env file' step ran correctly."
-            exit 1
-          fi
+          DB_CONN_STRING="user=${TEST_DB_USER} password=${TEST_DB_PASSWORD} host=${TEST_DB_HOST} port=${TEST_DB_PORT} dbname=${TEST_DB_NAME} sslmode=${TEST_DB_SSL_MODE} SERVER_ENV=${SERVER_ENV}"
 
-          DB_CONN_STRING="user=${TEST_DB_USER} password=${TEST_DB_PASSWORD} host=${TEST_DB_HOST} port=${TEST_DB_PORT} dbname=${TEST_DB_NAME} sslmode=${TEST_DB_SSL_MODE}"
+          echo "Running migration binary..."
 
-          ~/go/bin/goose postgres "$DB_CONN_STRING" up -dir migrations
+          ./migrator up
 
       - name: Run Tests
         run: go test -v ./...

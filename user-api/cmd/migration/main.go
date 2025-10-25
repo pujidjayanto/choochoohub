@@ -66,7 +66,7 @@ func runMigrationCommand(log *logrus.Logger) {
 	runMigrations(db, direction, env.Migration.Env, log)
 
 	// run on test database in development
-	if env.Migration.Env == "development" {
+	if env.Migration.Env == "development" || env.Migration.Env == "ci_test" {
 		dbTest, err := prepareDatabase(env.testDatabaseDsn())
 		if err != nil {
 			log.WithField("dsn", env.testDatabaseDsn()).WithError(err).Fatal("failed to prepare test database")
