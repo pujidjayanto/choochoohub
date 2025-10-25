@@ -56,22 +56,37 @@ func runMigrationCommand(log *logrus.Logger) {
 		log.WithError(err).Fatal("failed to load configuration")
 	}
 
-	log.WithField("dsn", env.databaseDsn()).Info("database dsn")
+	log.WithField("env", env.Migration.Env).Info("starting migration process")
 
-	db, err := prepareDatabase(env.databaseDsn())
-	if err != nil {
-		log.WithError(err).Fatal("failed to prepare database")
-	}
-
-	runMigrations(db, direction, env.Migration.Env, log)
-
-	// run on test database in development
-	if env.Migration.Env == "development" || env.Migration.Env == "ci_test" {
+	switch env.Migration.Env {
+	case "ci_test":
+		log.WithField("dsn", env.testDatabaseDsn()).Info("running test database migration (CI)")
 		dbTest, err := prepareDatabase(env.testDatabaseDsn())
 		if err != nil {
-			log.WithField("dsn", env.testDatabaseDsn()).WithError(err).Fatal("failed to prepare test database")
+			log.WithError(err).Fatal("failed to prepare test database")
 		}
 		runMigrations(dbTest, direction, "test", log)
+	case "development":
+		log.WithField("dsn", env.databaseDsn()).Info("running main database migration (Dev)")
+		db, err := prepareDatabase(env.databaseDsn())
+		if err != nil {
+			log.WithError(err).Fatal("failed to prepare main database")
+		}
+		runMigrations(db, direction, env.Migration.Env, log)
+
+		log.WithField("dsn", env.testDatabaseDsn()).Info("running test database migration (Dev)")
+		dbTest, err := prepareDatabase(env.testDatabaseDsn())
+		if err != nil {
+			log.WithError(err).Fatal("failed to prepare test database")
+		}
+		runMigrations(dbTest, direction, "test", log)
+	default:
+		log.WithField("dsn", env.databaseDsn()).Info("running main database migration (Default)")
+		db, err := prepareDatabase(env.databaseDsn())
+		if err != nil {
+			log.WithError(err).Fatal("failed to prepare main database")
+		}
+		runMigrations(db, direction, env.Migration.Env, log)
 	}
 }
 
