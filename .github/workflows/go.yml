@@ -19,11 +19,6 @@ jobs:
           POSTGRES_DB: user_api_test
         ports:
           - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U ci_user"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     defaults:
       run:
@@ -32,16 +27,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create .env for CI
-        run: |
-          cat <<EOF > .env
-          TEST_DB_HOST=127.0.0.1
-          TEST_DB_PORT=5432
-          TEST_DB_USER=ci_user
-          TEST_DB_PASSWORD=ci_password
-          TEST_DB_NAME=user_api_test
-          TEST_DB_SSL_MODE=disable
-          EOF
+      - name: Copy CI env file
+        run: cp .env.ci .env
 
       # Set up Go with caching
       - name: Set up Go
@@ -50,17 +37,26 @@ jobs:
           go-version: '1.24.5'
           cache-dependency-path: user-api/go.sum
 
-      # Download dependencies
       - name: Download Dependencies
         run: go mod download
 
-      # Run database migrations
-      - name: Run database migrations
-        run: |
-          for f in migrations/*.sql; do
-            PGPASSWORD=$TEST_DB_PASSWORD psql -h $TEST_DB_HOST -U $TEST_DB_USER -d $TEST_DB_NAME -f "$f"
-          done
+      - name: Install Goose
+        run: go install github.com/pressly/goose/v3/cmd/goose@latest
 
-      # Run tests
+      - name: Run database migrations with Goose
+        run: |
+          if [ -f ".env" ]; then
+            set -a
+            source .env
+            set +a
+          else
+            echo ".env file not found. Ensure the 'Copy CI env file' step ran correctly."
+            exit 1
+          fi
+
+          DB_CONN_STRING="user=${TEST_DB_USER} password=${TEST_DB_PASSWORD} host=${TEST_DB_HOST} port=${TEST_DB_PORT} dbname=${TEST_DB_NAME} sslmode=${TEST_DB_SSL_MODE}"
+
+          ~/go/bin/goose postgres "$DB_CONN_STRING" up -dir migrations
+
       - name: Run Tests
         run: go test -v ./...
