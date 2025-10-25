@@ -45,8 +45,16 @@ jobs:
 
       - name: Run database migrations with Migrator
         run: |
-          DB_CONN_STRING="user=${TEST_DB_USER} password=${TEST_DB_PASSWORD} host=${TEST_DB_HOST} port=${TEST_DB_PORT} dbname=${TEST_DB_NAME} sslmode=${TEST_DB_SSL_MODE} SERVER_ENV=${SERVER_ENV}"
-
+          # DEBUG: Echo all environment variables to confirm they are set
+          echo "--- Environment Variables for Migrator ---"
+          echo "TEST_DB_HOST: ${TEST_DB_HOST}"
+          echo "TEST_DB_PORT: ${TEST_DB_PORT}"
+          echo "TEST_DB_USER: ${TEST_DB_USER}"
+          echo "TEST_DB_PASSWORD: ${TEST_DB_PASSWORD}"
+          echo "TEST_DB_NAME: ${TEST_DB_NAME}"
+          echo "TEST_DB_SSL_MODE: ${TEST_DB_SSL_MODE}"
+          echo "SERVER_ENV: ${SERVER_ENV}"
+          echo "------------------------------------------"
           echo "Running migration binary..."
 
           ./migration -migrate up
