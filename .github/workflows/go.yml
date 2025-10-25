@@ -45,6 +45,9 @@ jobs:
 
       - name: Run database migrations with Migrator
         run: |
+          set -a
+          source .env
+          set +a
           # DEBUG: Echo all environment variables to confirm they are set
           echo "--- Environment Variables for Migrator ---"
           echo "TEST_DB_HOST: ${TEST_DB_HOST}"
