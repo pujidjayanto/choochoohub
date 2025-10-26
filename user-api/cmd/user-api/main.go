@@ -40,5 +40,5 @@ func main() {
 		log.Fatalf("cleanup failed: %v", err)
 	}
 
-	log.Println("server stopped, resource cleaned up")
+	log.Info("server stopped, resource cleaned up")
 }

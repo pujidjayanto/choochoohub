@@ -4,6 +4,10 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/pujidjayanto/choochoohub/api-gateway/api"
+	"github.com/pujidjayanto/choochoohub/api-gateway/client"
+	"github.com/pujidjayanto/choochoohub/api-gateway/pkg/httpclient"
+	"github.com/pujidjayanto/choochoohub/api-gateway/pkg/logger"
 )
 
 type ApplicationServer struct {
@@ -21,8 +25,14 @@ func NewApplicationServer() (*ApplicationServer, error) {
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
-		Immutable:    true,
 	})
+
+	log := logger.GetLogger()
+	httpClient := httpclient.NewClient(log)
+	externalClients := client.NewDependency(httpClient, log)
+	apis := api.NewDependency(externalClients)
+
+	routes(app, apis)
 
 	return &ApplicationServer{
 		Port: GetServerPort(),
