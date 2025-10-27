@@ -10,6 +10,6 @@ type Dependency struct {
 
 func NewDependency(externalClient client.Dependency) Dependency {
 	return Dependency{
-		UserApi: NewUserApi(&externalClient.UserApiClient),
+		UserApi: NewUserApi(externalClient.UserApiClient),
 	}
 }
