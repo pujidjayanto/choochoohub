@@ -8,8 +8,6 @@ import (
 )
 
 func routes(router *echo.Echo, apis api.Dependency, log *logrus.Logger) {
-	// todo: i think request id must be from api-gateway rather than generate new
-	router.Use(middleware.RequestID())
 	router.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogStatus:    true,
 		LogURI:       true,

@@ -1,11 +1,11 @@
 package api
 
 import (
-	"net/http"
-
 	"github.com/gofiber/fiber/v2"
+	"github.com/pujidjayanto/choochoohub/api-gateway/apperror"
 	userapi "github.com/pujidjayanto/choochoohub/api-gateway/client/user-api"
 	"github.com/pujidjayanto/choochoohub/api-gateway/dto"
+	"github.com/pujidjayanto/choochoohub/api-gateway/pkg/delivery"
 )
 
 type UserApi interface {
@@ -24,26 +24,28 @@ func NewUserApi(client userapi.Client) UserApi {
 func (userApi *userApi) Signin(c *fiber.Ctx) error {
 	var req dto.SigninRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(http.StatusBadRequest).SendString("bad request")
+		appErr := apperror.NewBadRequestError(err)
+		return delivery.Failed(c, appErr.StatusCode, appErr.Message)
 	}
 
-	err := userApi.client.Signin(c.UserContext(), &userapi.SigninRequest{Email: req.Email, Password: req.Password})
+	resp, err := userApi.client.Signin(c.UserContext(), &userapi.SigninRequest{Email: req.Email, Password: req.Password})
 	if err != nil {
-		return c.SendStatus(http.StatusInternalServerError)
+		return delivery.Failed(c, err.StatusCode, err.Error())
 	}
 
-	return nil
+	return delivery.Success(c, resp)
 }
 
 func (userApi *userApi) Signup(c *fiber.Ctx) error {
 	var req dto.SignupRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(http.StatusBadRequest).SendString("bad request")
+		appErr := apperror.NewBadRequestError(err)
+		return delivery.Failed(c, appErr.StatusCode, appErr.Message)
 	}
 
 	err := userApi.client.Signup(c.UserContext(), &userapi.SignupRequest{Email: req.Email, Password: req.Password})
 	if err != nil {
-		return c.SendStatus(http.StatusInternalServerError)
+		return delivery.Failed(c, err.StatusCode, err.Error())
 	}
 
 	return nil

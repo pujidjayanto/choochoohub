@@ -19,11 +19,13 @@ func routes(app *fiber.App, apis api.Dependency, log *logrus.Logger) {
 		err := c.Next() // Process request
 
 		duration := time.Since(start)
+		requestId := c.Locals("requestid")
 		log.WithFields(logrus.Fields{
-			"method":   c.Method(),
-			"path":     c.Path(),
-			"status":   c.Response().StatusCode(),
-			"duration": duration,
+			"method":     c.Method(),
+			"path":       c.Path(),
+			"status":     c.Response().StatusCode(),
+			"duration":   duration.Seconds(),
+			"request_id": requestId,
 		}).Info("Incoming request")
 
 		return err

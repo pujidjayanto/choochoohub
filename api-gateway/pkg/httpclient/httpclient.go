@@ -37,12 +37,10 @@ func (c *fiberClient) FireRequest(
 	req.Header.SetMethod(method)
 	req.SetRequestURI(url)
 
-	// Set headers
 	for k, v := range headers {
 		req.Header.Set(k, v)
 	}
 
-	// Marshal body if present
 	if body != nil {
 		jsonBody, err := json.Marshal(body)
 		if err != nil {
@@ -52,18 +50,13 @@ func (c *fiberClient) FireRequest(
 		req.Header.Set("Content-Type", "application/json")
 	}
 
-	err := agent.Parse()
-	if err != nil {
-		c.log.WithFields(logrus.Fields{
-			"err": err,
-		}).Info("Parsing Agent")
-		return err
-	}
+	_ = agent.Parse()
+
 	// Logging request
 	c.log.WithFields(logrus.Fields{
 		"method":  method,
 		"url":     url,
-		"headers": headers,
+		"headers": &req.Header,
 		"body":    body,
 	}).Info("Outgoing HTTP request")
 
@@ -79,18 +72,12 @@ func (c *fiberClient) FireRequest(
 	}
 
 	if statusCode >= 400 {
-		c.log.WithFields(logrus.Fields{
-			"errs": errs,
-		}).Info("Outgoing HTTP response 400")
 		return fmt.Errorf("http error %d: %s", statusCode, string(respBody))
 	}
 
 	// Decode response if out provided
 	if out != nil {
 		if err := json.Unmarshal(respBody, out); err != nil {
-			c.log.WithFields(logrus.Fields{
-				"errs": err,
-			}).Info("Outgoing HTTP response unmarshal JSON")
 			return fmt.Errorf("decode response: %w", err)
 		}
 	}
