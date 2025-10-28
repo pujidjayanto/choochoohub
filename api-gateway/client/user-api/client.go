@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/pujidjayanto/choochoohub/api-gateway/appctx"
 	"github.com/pujidjayanto/choochoohub/api-gateway/apperror"
 	"github.com/pujidjayanto/choochoohub/api-gateway/client/config"
 	"github.com/pujidjayanto/choochoohub/api-gateway/pkg/httpclient"
@@ -33,7 +34,14 @@ func (client *client) Signin(ctx context.Context, req *SigninRequest) (*SigninRe
 		return nil, apperror.NewAppError(http.StatusUnprocessableEntity, "user-api signin build url failed", err)
 	}
 
-	err = client.httpClient.FireRequest(ctx, http.MethodPost, url, nil, req, &resp)
+	requestID := appctx.RequestID(ctx)
+
+	headers := map[string]string{}
+	if requestID != "" {
+		headers["X-Request-ID"] = requestID
+	}
+
+	err = client.httpClient.FireRequest(ctx, http.MethodPost, url, headers, req, &resp)
 	if err != nil {
 		return nil, apperror.NewAppError(http.StatusUnprocessableEntity, "user-api signin request failed", err)
 	}
@@ -47,7 +55,14 @@ func (client *client) Signup(ctx context.Context, req *SignupRequest) *apperror.
 		return apperror.NewAppError(http.StatusUnprocessableEntity, "user-api signup build url failed", err)
 	}
 
-	err = client.httpClient.FireRequest(ctx, http.MethodPost, url, nil, req, nil)
+	requestID := appctx.RequestID(ctx)
+
+	headers := map[string]string{}
+	if requestID != "" {
+		headers["X-Request-ID"] = requestID
+	}
+
+	err = client.httpClient.FireRequest(ctx, http.MethodPost, url, headers, req, nil)
 	if err != nil {
 		return apperror.NewAppError(http.StatusUnprocessableEntity, "user-api signup request failed", err)
 	}

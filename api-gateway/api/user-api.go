@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/pujidjayanto/choochoohub/api-gateway/appctx"
 	"github.com/pujidjayanto/choochoohub/api-gateway/apperror"
 	userapi "github.com/pujidjayanto/choochoohub/api-gateway/client/user-api"
 	"github.com/pujidjayanto/choochoohub/api-gateway/dto"
@@ -28,7 +29,10 @@ func (userApi *userApi) Signin(c *fiber.Ctx) error {
 		return delivery.Failed(c, appErr.StatusCode, appErr.Message)
 	}
 
-	resp, err := userApi.client.Signin(c.UserContext(), &userapi.SigninRequest{Email: req.Email, Password: req.Password})
+	reqID := c.Locals("requestid").(string)
+	ctx := appctx.WithRequestID(c.UserContext(), reqID)
+
+	resp, err := userApi.client.Signin(ctx, &userapi.SigninRequest{Email: req.Email, Password: req.Password})
 	if err != nil {
 		return delivery.Failed(c, err.StatusCode, err.Error())
 	}
@@ -43,7 +47,9 @@ func (userApi *userApi) Signup(c *fiber.Ctx) error {
 		return delivery.Failed(c, appErr.StatusCode, appErr.Message)
 	}
 
-	err := userApi.client.Signup(c.UserContext(), &userapi.SignupRequest{Email: req.Email, Password: req.Password})
+	reqID := c.Locals("requestid").(string)
+	ctx := appctx.WithRequestID(c.UserContext(), reqID)
+	err := userApi.client.Signup(ctx, &userapi.SignupRequest{Email: req.Email, Password: req.Password})
 	if err != nil {
 		return delivery.Failed(c, err.StatusCode, err.Error())
 	}
