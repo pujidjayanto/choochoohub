@@ -76,6 +76,16 @@ func GetServerPort() string {
 	return fmt.Sprintf(":%s", port)
 }
 
+func GetUserApiHost() string {
+	checkInitialized()
+	return globalConfig.userApi.host
+}
+
+func GetUserApiPort() string {
+	checkInitialized()
+	return globalConfig.userApi.port
+}
+
 func checkInitialized() {
 	if globalConfig == nil {
 		panic("configuration not initialized. Call Initialize() first")

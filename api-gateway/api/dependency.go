@@ -1,8 +1,6 @@
 package api
 
-import (
-	"github.com/pujidjayanto/choochoohub/api-gateway/client"
-)
+import "github.com/pujidjayanto/choochoohub/api-gateway/client"
 
 type Dependency struct {
 	UserApi UserApi

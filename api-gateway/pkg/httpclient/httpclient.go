@@ -4,28 +4,22 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
-	"github.com/valyala/fasthttp"
 )
 
 type Client interface {
-	FireRequest(ctx context.Context, method, url string, headers map[string]string, params, body, out any) error
+	FireRequest(ctx context.Context, method, url string, headers map[string]string, body, out any) error
 }
 
 type fiberClient struct {
-	log           *logrus.Logger
-	agent         *fiber.Agent
-	clientTimeout time.Duration
+	log *logrus.Logger
 }
 
 func NewClient(log *logrus.Logger) Client {
 	return &fiberClient{
-		log:           log,
-		agent:         fiber.AcquireAgent(),
-		clientTimeout: 2 * time.Second,
+		log: log,
 	}
 }
 
@@ -33,19 +27,22 @@ func (c *fiberClient) FireRequest(
 	ctx context.Context,
 	method, url string,
 	headers map[string]string,
-	params, body, out any,
+	body, out any,
 ) error {
-	req := c.agent.Request()
+	// Acquire a new agent per request
+	agent := fiber.AcquireAgent()
+	defer fiber.ReleaseAgent(agent)
 
+	req := agent.Request()
 	req.Header.SetMethod(method)
 	req.SetRequestURI(url)
 
-	// set headers
+	// Set headers
 	for k, v := range headers {
 		req.Header.Set(k, v)
 	}
 
-	// encode body if provided
+	// Marshal body if present
 	if body != nil {
 		jsonBody, err := json.Marshal(body)
 		if err != nil {
@@ -55,36 +52,45 @@ func (c *fiberClient) FireRequest(
 		req.Header.Set("Content-Type", "application/json")
 	}
 
-	c.log.WithField("headers", headers).WithField("body", req.Body()).WithField("url", url).Info("request info")
+	err := agent.Parse()
+	if err != nil {
+		c.log.WithFields(logrus.Fields{
+			"err": err,
+		}).Info("Parsing Agent")
+		return err
+	}
+	// Logging request
+	c.log.WithFields(logrus.Fields{
+		"method":  method,
+		"url":     url,
+		"headers": headers,
+		"body":    body,
+	}).Info("Outgoing HTTP request")
 
-	var resp fasthttp.Response
-	// context timeout handling
-	done := make(chan error, 1)
-	go func() {
-		err := c.agent.Do(req, &resp)
-		done <- err
-	}()
-
-	select {
-	case <-ctx.Done():
-		return fmt.Errorf("request canceled or timeout: %w", ctx.Err())
-	case err := <-done:
-		if err != nil {
-			return fmt.Errorf("fiber agent error: %w", err)
-		}
+	// Send request
+	statusCode, respBody, errs := agent.Bytes()
+	c.log.WithFields(logrus.Fields{
+		"statusCode": statusCode,
+		"respBody":   respBody,
+		"errs":       errs,
+	}).Info("Outgoing HTTP response")
+	if len(errs) > 0 {
+		return fmt.Errorf("http errors: %v", errs)
 	}
 
-	defer fiber.ReleaseAgent(c.agent)
-
-	bodyBytes := resp.Body()
-	status := resp.StatusCode()
-
-	if status >= 400 {
-		return fmt.Errorf("http error %d: %s", status, string(bodyBytes))
+	if statusCode >= 400 {
+		c.log.WithFields(logrus.Fields{
+			"errs": errs,
+		}).Info("Outgoing HTTP response 400")
+		return fmt.Errorf("http error %d: %s", statusCode, string(respBody))
 	}
 
+	// Decode response if out provided
 	if out != nil {
-		if err := json.Unmarshal(bodyBytes, out); err != nil {
+		if err := json.Unmarshal(respBody, out); err != nil {
+			c.log.WithFields(logrus.Fields{
+				"errs": err,
+			}).Info("Outgoing HTTP response unmarshal JSON")
 			return fmt.Errorf("decode response: %w", err)
 		}
 	}

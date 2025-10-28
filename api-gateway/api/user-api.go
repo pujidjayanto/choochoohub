@@ -23,7 +23,7 @@ func NewUserApi(client userapi.Client) UserApi {
 
 func (userApi *userApi) Signin(c *fiber.Ctx) error {
 	var req dto.SigninRequest
-	if err := c.BodyParser(req); err != nil {
+	if err := c.BodyParser(&req); err != nil {
 		return c.Status(http.StatusBadRequest).SendString("bad request")
 	}
 
@@ -37,7 +37,7 @@ func (userApi *userApi) Signin(c *fiber.Ctx) error {
 
 func (userApi *userApi) Signup(c *fiber.Ctx) error {
 	var req dto.SignupRequest
-	if err := c.BodyParser(req); err != nil {
+	if err := c.BodyParser(&req); err != nil {
 		return c.Status(http.StatusBadRequest).SendString("bad request")
 	}
 
