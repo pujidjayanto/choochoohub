@@ -14,7 +14,8 @@ type User struct {
 	UserType     UserType  `gorm:"type:varchar(20);not null;default:'unverified'"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
-	Profile      *UserProfile `gorm:"constraint:OnDelete:CASCADE;"`
+	Profile      *UserProfile `gorm:"constraint:OnDelete:CASCADE;"` // foreignKey:UserID;
+	Otps         []*UserOTP   `gorm:"constraint:OnDelete:CASCADE;"` // foreignKey:UserID;
 }
 
 // https://gorm.io/docs/hooks.html#Hooks

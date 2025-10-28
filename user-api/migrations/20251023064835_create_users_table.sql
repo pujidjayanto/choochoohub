@@ -1,40 +1,40 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE users (
-  id UUID PRIMARY KEY,
-  email VARCHAR(255) NOT NULL UNIQUE,
-  password_hash TEXT NOT NULL,
-  user_type VARCHAR(20) NOT NULL DEFAULT 'unverified',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+create table users (
+  id uuid primary key,
+  email varchar(255) not null unique,
+  password_hash text not null,
+  user_type varchar(20) not null default 'unverified',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
-CREATE INDEX idx_users_email ON users (email);
+create index idx_users_email on users(email);
 
-CREATE TABLE user_profiles (
-  id UUID PRIMARY KEY,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  phone VARCHAR(20) UNIQUE,
-  name VARCHAR(255) NOT NULL,
-  dob DATE NOT NULL,
-  gender CHAR(1) NOT NULL,
-  identity_number VARCHAR(50) NOT NULL,
-  identity_type VARCHAR(10) NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+create table user_profiles (
+  id uuid primary key,
+  user_id uuid not null references users(id) on delete cascade,
+  phone varchar(20) unique,
+  name varchar(255) not null,
+  dob date not null,
+  gender char(1) not null,
+  identity_number varchar(50) not null,
+  identity_type varchar(10) not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
-CREATE UNIQUE INDEX idx_user_profiles_user_id ON user_profiles(user_id);
+create unique index idx_user_profiles_user_id on user_profiles(user_id);
 
-CREATE UNIQUE INDEX idx_unique_non_null_phone
-ON user_profiles (phone) WHERE phone IS NOT NULL;
+create unique index idx_unique_non_null_phone
+on user_profiles(phone) where phone is not null;
 
-CREATE UNIQUE INDEX idx_unique_non_null_identity
-ON user_profiles (identity_type, identity_number);
+create unique index idx_unique_non_null_identity
+on user_profiles(identity_type, identity_number);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS user_profiles;
-DROP TABLE IF EXISTS users;
+drop table if exists user_profiles;
+drop table if exists users;
 -- +goose StatementEnd
