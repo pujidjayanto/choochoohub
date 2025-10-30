@@ -9,7 +9,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/pujidjayanto/choochoohub/user-api/pkg/db"
 	"github.com/pujidjayanto/choochoohub/user-api/pkg/envloader"
-	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 )
 
@@ -45,10 +44,14 @@ func loadTestDatabaseDsn() (string, error) {
 // NewTestDb creates a new test database handler
 func NewTestDb(t *testing.T) db.DatabaseHandler {
 	dsn, err := loadTestDatabaseDsn()
-	require.NoError(t, err, "failed to load test database dsn")
+	if err != nil {
+		t.Fatalf("failed to load test database dsn: %v", err)
+	}
 
 	database, err := db.InitDatabaseHandler(dsn, &gorm.Config{})
-	require.NoError(t, err, "failed to initialize database")
+	if err != nil {
+		t.Fatalf("failed to initialize database: %v", err)
+	}
 
 	// Register cleanup to close the database connection
 	t.Cleanup(func() {
@@ -70,6 +73,11 @@ func WithTransaction(t *testing.T, db db.DatabaseHandler, testFn func(ctx contex
 	})
 
 	// We expect an error because we're forcing a rollback
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "force rollback")
+	if err == nil {
+		t.Fatal("expected error to force rollback, got nil")
+	}
+
+	if err.Error() != "force rollback" {
+		t.Fatalf("expected 'force rollback' error, got: %v", err)
+	}
 }

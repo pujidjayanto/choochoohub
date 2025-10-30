@@ -3,11 +3,12 @@ package usecase_test
 import (
 	"context"
 	"errors"
+	"net/http"
 	"testing"
 
 	"github.com/matryer/is"
-	"go.uber.org/mock/gomock"
 
+	"github.com/pujidjayanto/choochoohub/user-api/apperror"
 	"github.com/pujidjayanto/choochoohub/user-api/dto"
 	"github.com/pujidjayanto/choochoohub/user-api/mocks"
 	"github.com/pujidjayanto/choochoohub/user-api/model"
@@ -15,11 +16,6 @@ import (
 )
 
 func TestSignUpUsecase_Create(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockRepo := mocks.NewMockUserRepository(ctrl)
-	signupUC := usecase.NewSignupUsecase(mockRepo)
 	ctx := context.Background()
 
 	t.Run("success", func(t *testing.T) {
@@ -30,14 +26,15 @@ func TestSignUpUsecase_Create(t *testing.T) {
 			Password: "secure123",
 		}
 
-		mockRepo.EXPECT().
-			Create(ctx, gomock.Any()).
-			DoAndReturn(func(_ context.Context, user *model.User) error {
+		mockRepo := &mocks.UserRepositoryMock{
+			CreateFunc: func(_ context.Context, user *model.User) error {
 				is.True(user.PasswordHash != "secure123") // password should be hashed
 				is.Equal(user.Email, "test@example.com")
 				return nil
-			})
+			},
+		}
 
+		signupUC := usecase.NewSignupUsecase(mockRepo)
 		err := signupUC.Create(ctx, req)
 		is.NoErr(err)
 	})
@@ -50,11 +47,17 @@ func TestSignUpUsecase_Create(t *testing.T) {
 			Password: "secure123",
 		}
 
-		mockRepo.EXPECT().
-			Create(ctx, gomock.Any()).
-			Return(errors.New("duplicate email"))
+		mockRepo := &mocks.UserRepositoryMock{
+			CreateFunc: func(_ context.Context, user *model.User) error {
+				return errors.New("duplicate email")
+			},
+		}
 
+		signupUC := usecase.NewSignupUsecase(mockRepo)
 		err := signupUC.Create(ctx, req)
-		is.Equal(err.Error(), "duplicate email")
+		appErr, ok := err.(*apperror.AppError)
+		is.True(ok)
+		is.Equal(appErr.Err.Error(), "duplicate email")
+		is.Equal(appErr.StatusCode, http.StatusInternalServerError)
 	})
 }

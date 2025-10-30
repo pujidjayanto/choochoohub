@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/pujidjayanto/choochoohub/user-api/apperror"
@@ -9,6 +10,7 @@ import (
 	"github.com/pujidjayanto/choochoohub/user-api/model"
 	"github.com/pujidjayanto/choochoohub/user-api/pkg/pwd"
 	"github.com/pujidjayanto/choochoohub/user-api/repository"
+	"gorm.io/gorm"
 )
 
 type SignUpUsecase interface {
@@ -33,6 +35,9 @@ func (signUpUsecase *signUpUsecase) Create(c context.Context, req dto.SignupRequ
 
 	err = signUpUsecase.userRepository.Create(c, &model.User{PasswordHash: hashedPwd, Email: req.Email})
 	if err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return apperror.NewAppError(http.StatusUnprocessableEntity, apperror.CodeValidationFailed, err)
+		}
 		return apperror.NewAppError(http.StatusInternalServerError, apperror.CodeInternalServerError, err)
 	}
 

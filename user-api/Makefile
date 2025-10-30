@@ -31,19 +31,12 @@ mocks:
 	@echo "Cleaning old mocks..."
 	@rm -rf ./mocks
 	@mkdir -p ./mocks
+	@echo "Generating mocks using moq..."
 
-	@echo "Generating mocks for all packages..."
-	@for pkg in $$(go list ./... | grep -v /mocks); do \
-		ifaces=$$(mockgen -list $$pkg 2>/dev/null); \
-		if [ -n "$$ifaces" ]; then \
-			pkg_name=$$(basename $$pkg); \
-			dest="./mocks/mock_$${pkg_name}.go"; \
-			echo "Generating mock for package $$pkg -> $$dest"; \
-			mockgen -package=mocks $$pkg > $$dest; \
-		else \
-			echo "Skipping $$pkg (no interfaces)"; \
-		fi \
-	done
+	@moq -out mocks/mock_user_repository.go -pkg mocks ./repository UserRepository
+	@moq -out mocks/mock_user_api.go -pkg mocks ./api UserApi
+	@moq -out mocks/mock_signup_usecase.go -pkg mocks ./usecase SignUpUsecase
+	@moq -out mocks/mock_pkg_db_gorm.go -pkg mocks ./pkg/db/ DatabaseHandler
 
 	@echo "All mocks generated in ./mocks"
 
