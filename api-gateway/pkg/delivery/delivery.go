@@ -7,8 +7,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func SuccessNoContent(c *fiber.Ctx) {
-	c.SendStatus(fiber.StatusNoContent)
+func SuccessNoContent(c *fiber.Ctx) error {
+	return c.SendStatus(fiber.StatusNoContent)
 }
 
 func SuccessCreated(c *fiber.Ctx) error {
