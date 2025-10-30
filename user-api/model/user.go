@@ -15,7 +15,7 @@ type User struct {
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	Profile      *UserProfile `gorm:"constraint:OnDelete:CASCADE;"` // foreignKey:UserID;
-	Otps         []*UserOTP   `gorm:"constraint:OnDelete:CASCADE;"` // foreignKey:UserID;
+	Otps         []*UserOtp   `gorm:"constraint:OnDelete:CASCADE;"` // foreignKey:UserID;
 }
 
 // https://gorm.io/docs/hooks.html#Hooks

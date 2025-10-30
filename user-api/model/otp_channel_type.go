@@ -1,8 +1,8 @@
 package model
 
-type UserOTPChannel string
+type UserOtpChannel string
 
 const (
-	UserOTPChannelEmail UserOTPChannel = "email"
-	UserOTPChannelSMS   UserOTPChannel = "sms"
+	UserOtpChannelEmail UserOtpChannel = "email"
+	UserOtpChannelSms   UserOtpChannel = "sms"
 )

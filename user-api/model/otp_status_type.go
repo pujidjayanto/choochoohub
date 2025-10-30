@@ -1,11 +1,11 @@
 package model
 
-type UserOTPStatus string
+type UserOtpStatus string
 
 const (
-	UserOTPStatusPending         UserOTPStatus = "pending"
-	UserOTPStatusVerified        UserOTPStatus = "verified"
-	UserOTPStatusMaxAttempted    UserOTPStatus = "max_attempted"
-	UserOTPStatusExpired         UserOTPStatus = "expired"
-	UserOTPStatusUserInvalidated UserOTPStatus = "user_invalidated"
+	UserOtpStatusPending         UserOtpStatus = "pending"
+	UserOtpStatusVerified        UserOtpStatus = "verified"
+	UserOtpStatusMaxAttempted    UserOtpStatus = "max_attempted"
+	UserOtpStatusExpired         UserOtpStatus = "expired"
+	UserOtpStatusUserInvalidated UserOtpStatus = "user_invalidated"
 )

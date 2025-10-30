@@ -4,10 +4,14 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/pujidjayanto/choochoohub/user-api/api"
+	"github.com/pujidjayanto/choochoohub/user-api/pkg/validator"
 	"github.com/sirupsen/logrus"
 )
 
 func routes(router *echo.Echo, apis api.Dependency, log *logrus.Logger) {
+	router.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+		Level: 5,
+	}))
 	router.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogStatus:    true,
 		LogURI:       true,
@@ -23,7 +27,7 @@ func routes(router *echo.Echo, apis api.Dependency, log *logrus.Logger) {
 					WithField("uri", v.URI).
 					WithField("status", v.Status).
 					WithField("method", v.Method).
-					WithField("latency", v.Latency.Abs()).
+					WithField("latency", v.Latency.Seconds()).
 					Info("request")
 			} else {
 				log.
@@ -32,15 +36,16 @@ func routes(router *echo.Echo, apis api.Dependency, log *logrus.Logger) {
 					WithField("status", v.Status).
 					WithField("error", v.Error.Error()).
 					WithField("method", v.Method).
-					WithField("latency", v.Latency.Abs()).
+					WithField("latency", v.Latency.Seconds()).
 					Info("request_error")
 			}
 			return nil
 		},
 	}))
-	router.GET("/ping", apis.PingController.Ping)
+
+	router.Validator = validator.New()
+	router.GET("/ping", apis.PingApi.Ping)
 
 	v1 := router.Group("v1")
-	v1.POST("/signup", apis.SignUpController.SignUp)
-	v1.POST("/signin", apis.SignInController.SignIn)
+	v1.POST("/signup", apis.UserApi.SignUp)
 }

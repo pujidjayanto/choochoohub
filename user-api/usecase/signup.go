@@ -2,7 +2,9 @@ package usecase
 
 import (
 	"context"
+	"net/http"
 
+	"github.com/pujidjayanto/choochoohub/user-api/apperror"
 	"github.com/pujidjayanto/choochoohub/user-api/dto"
 	"github.com/pujidjayanto/choochoohub/user-api/model"
 	"github.com/pujidjayanto/choochoohub/user-api/pkg/pwd"
@@ -26,12 +28,12 @@ func NewSignupUsecase(userRepository repository.UserRepository) SignUpUsecase {
 func (signUpUsecase *signUpUsecase) Create(c context.Context, req dto.SignupRequest) error {
 	hashedPwd, err := pwd.Hash(req.Password)
 	if err != nil {
-		return err
+		return apperror.NewAppError(http.StatusInternalServerError, apperror.CodeInternalServerError, err)
 	}
 
 	err = signUpUsecase.userRepository.Create(c, &model.User{PasswordHash: hashedPwd, Email: req.Email})
 	if err != nil {
-		return err
+		return apperror.NewAppError(http.StatusInternalServerError, apperror.CodeInternalServerError, err)
 	}
 
 	return nil
