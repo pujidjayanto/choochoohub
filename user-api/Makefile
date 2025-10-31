@@ -1,4 +1,4 @@
-.PHONY: migrate rollback create-migration seed create-seed run mocks
+.PHONY: migrate rollback create-migration seed create-seed run mocks test
 
 # Run migrations up
 migrate:
@@ -34,9 +34,15 @@ mocks:
 	@echo "Generating mocks using moq..."
 
 	@moq -out mocks/mock_user_repository.go -pkg mocks ./repository UserRepository
+	@moq -out mocks/mock_user_otp_repository.go -pkg mocks ./repository UserOtpRepository
 	@moq -out mocks/mock_user_api.go -pkg mocks ./api UserApi
 	@moq -out mocks/mock_signup_usecase.go -pkg mocks ./usecase SignUpUsecase
 	@moq -out mocks/mock_pkg_db_gorm.go -pkg mocks ./pkg/db/ DatabaseHandler
+	@moq -out mocks/mock_pkg_eventbus.go -pkg mocks ./pkg/eventbus/ EventBus
 
 	@echo "All mocks generated in ./mocks"
 
+
+test:
+	@echo "Running tests..."
+	go test -v ./...

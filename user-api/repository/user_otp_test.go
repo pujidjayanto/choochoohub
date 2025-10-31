@@ -26,7 +26,7 @@ func TestUserOtpRepository_Create(t *testing.T) {
 		}
 
 		userRepo := repository.NewUserRepository(db)
-		err := userRepo.Create(ctx, user)
+		_, err := userRepo.Create(ctx, user)
 		is.NoErr(err)
 		is.True(user.ID != uuid.Nil)
 

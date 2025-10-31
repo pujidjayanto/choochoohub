@@ -23,9 +23,9 @@ func TestCreate(t *testing.T) {
 			PasswordHash: "dummyhashedpassword",
 		}
 
-		err := repo.Create(ctx, user)
+		newUssr, err := repo.Create(ctx, user)
 		is.NoErr(err)
-		is.Equal(user.Email, "john@gmail.com")
+		is.Equal(newUssr.Email, "john@gmail.com")
 	})
 }
 
@@ -41,7 +41,7 @@ func TestFindByEmail(t *testing.T) {
 			PasswordHash: "dummyhashedpassword",
 		}
 
-		err := repo.Create(ctx, user)
+		_, err := repo.Create(ctx, user)
 		is.NoErr(err)
 
 		existingUser, err := repo.FindByEmail(ctx, user.Email)

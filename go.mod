@@ -3,6 +3,7 @@ module github.com/pujidjayanto/choochoohub
 go 1.24.5
 
 require (
+	github.com/asaskevich/EventBus v0.0.0-20200907212545-49d423059eef
 	github.com/go-playground/validator/v10 v10.28.0
 	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/google/uuid v1.6.0

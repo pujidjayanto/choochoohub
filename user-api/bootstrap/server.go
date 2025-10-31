@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/pujidjayanto/choochoohub/user-api/api"
 	"github.com/pujidjayanto/choochoohub/user-api/pkg/db"
+	"github.com/pujidjayanto/choochoohub/user-api/pkg/eventbus"
 	"github.com/pujidjayanto/choochoohub/user-api/pkg/logger"
 	"github.com/pujidjayanto/choochoohub/user-api/repository"
 	"github.com/pujidjayanto/choochoohub/user-api/usecase"
@@ -33,10 +34,13 @@ func NewApplicationServer() (*http.Server, CleanupFunc, error) {
 		return nil, nil, err
 	}
 
+	eventBus := eventbus.New()
 	repositories := repository.NewDependency(database)
-	usecases := usecase.NewDependency(repositories)
+	usecases := usecase.NewDependency(repositories, eventBus)
 	apis := api.NewDependency(usecases)
 	log := logger.GetLogger()
+
+	RegisterOtpSubscriber(eventBus, usecases.OtpUsecase)
 
 	router := echo.New()
 	routes(router, apis, log)
