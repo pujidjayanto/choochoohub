@@ -1,4 +1,4 @@
-.PHONY: migrate rollback create-migration seed create-seed run mocks test
+.PHONY: migrate rollback create-migration seed create-seed run mock test
 
 # Run migrations up
 migrate:
@@ -27,7 +27,7 @@ run:
 	go run ./cmd/user-api
 
 # Generate mocks
-mocks:
+mock:
 	@echo "Cleaning old mocks..."
 	@rm -rf ./mocks
 	@mkdir -p ./mocks
@@ -46,3 +46,7 @@ mocks:
 test:
 	@echo "Running tests..."
 	go test -v ./...
+
+lint:
+	@echo "Running golint..."
+	golangci-lint run ./...

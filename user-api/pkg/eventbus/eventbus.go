@@ -24,5 +24,5 @@ func (e *eventBus) Publish(event string, payload interface{}) {
 }
 
 func (e *eventBus) Subscribe(event string, handler func(payload interface{})) {
-	e.bus.Subscribe(event, handler)
+	_ = e.bus.Subscribe(event, handler)
 }
