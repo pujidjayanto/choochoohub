@@ -17,7 +17,7 @@ func NewApplicationServer() (*http.Server, CleanupFunc, error) {
 		return nil, nil, err
 	}
 
-	sharedDependency, err := pkg.NewDependency(GetDatabaseDSN())
+	sharedDependency, err := pkg.NewDependency(GetDatabaseDSN(), GetKafkaHost())
 	if err != nil {
 		return nil, nil, err
 	}
@@ -26,7 +26,7 @@ func NewApplicationServer() (*http.Server, CleanupFunc, error) {
 	usecases := usecase.NewDependency(repositories, sharedDependency.EventBus)
 	apis := api.NewDependency(usecases)
 
-	RegisterOtpSubscriber(sharedDependency.EventBus, usecases.OtpUsecase)
+	RegisterOtpSubscriber(sharedDependency, usecases.OtpUsecase)
 
 	router := echo.New()
 	routes(router, apis, sharedDependency.Logger)

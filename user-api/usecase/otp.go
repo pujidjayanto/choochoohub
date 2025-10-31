@@ -13,7 +13,7 @@ import (
 )
 
 type OtpUsecase interface {
-	Create(c context.Context, req dto.OtpRequest) error
+	Create(c context.Context, req dto.OtpRequest) (*model.UserOtp, error)
 }
 
 type otpUsecase struct {
@@ -24,15 +24,15 @@ func NewOtpUsecase(otpRepository repository.UserOtpRepository) OtpUsecase {
 	return &otpUsecase{otpRepository}
 }
 
-func (u *otpUsecase) Create(c context.Context, req dto.OtpRequest) error {
+func (u *otpUsecase) Create(c context.Context, req dto.OtpRequest) (*model.UserOtp, error) {
 	otpCode, err := otpcode.Generate()
 	if err != nil {
-		return apperror.NewAppError(http.StatusInternalServerError, apperror.CodeInternalServerError, err)
+		return nil, apperror.NewAppError(http.StatusInternalServerError, apperror.CodeInternalServerError, err)
 	}
 
 	otpHashed, err := stringhash.Hash(otpCode)
 	if err != nil {
-		return apperror.NewAppError(http.StatusInternalServerError, apperror.CodeInternalServerError, err)
+		return nil, apperror.NewAppError(http.StatusInternalServerError, apperror.CodeInternalServerError, err)
 	}
 
 	otp := model.UserOtp{
@@ -44,10 +44,12 @@ func (u *otpUsecase) Create(c context.Context, req dto.OtpRequest) error {
 		OTPHash:     otpHashed,
 	}
 
-	err = u.otpRepository.Create(c, &otp)
+	createdOtp, err := u.otpRepository.Create(c, &otp)
 	if err != nil {
-		return apperror.NewAppError(http.StatusInternalServerError, apperror.CodeInternalServerError, err)
+		return nil, apperror.NewAppError(http.StatusInternalServerError, apperror.CodeInternalServerError, err)
 	}
 
-	return nil
+	createdOtp.OTPCode = otpCode
+
+	return createdOtp, nil
 }

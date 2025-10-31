@@ -8,7 +8,7 @@ import (
 )
 
 type UserOtpRepository interface {
-	Create(ctx context.Context, user *model.UserOtp) error
+	Create(ctx context.Context, user *model.UserOtp) (*model.UserOtp, error)
 }
 
 type userOtpRepository struct {
@@ -19,6 +19,10 @@ func NewUserOtpRepository(db db.DatabaseHandler) UserOtpRepository {
 	return &userOtpRepository{db: db}
 }
 
-func (r *userOtpRepository) Create(ctx context.Context, otp *model.UserOtp) error {
-	return r.db.GetDB(ctx).Create(otp).Error
+func (r *userOtpRepository) Create(ctx context.Context, otp *model.UserOtp) (*model.UserOtp, error) {
+	if err := r.db.GetDB(ctx).Create(otp).Error; err != nil {
+		return nil, err
+	}
+
+	return otp, nil
 }

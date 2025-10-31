@@ -35,10 +35,16 @@ type redis struct {
 	databaseName string
 }
 
+type kafka struct {
+	host string
+	port string
+}
+
 type config struct {
 	database database
 	server   server
 	redis    redis
+	kafka    kafka
 }
 
 var (
@@ -87,6 +93,10 @@ func loadConfiguration() error {
 			password:     os.Getenv("REDIS_PASSWORD"),
 			databaseName: os.Getenv("REDIS_DB_NAME"),
 		},
+		kafka: kafka{
+			host: os.Getenv("KAFKA_HOST"),
+			port: os.Getenv("KAFKA_PORT"),
+		},
 	}
 
 	return nil
@@ -123,6 +133,11 @@ func GetServerEnv() string {
 func GetSecretKey() string {
 	checkInitialized()
 	return globalConfig.server.secretKey
+}
+
+func GetKafkaHost() string {
+	checkInitialized()
+	return fmt.Sprintf("%s:%s", globalConfig.kafka.host, globalConfig.kafka.port)
 }
 
 func checkInitialized() {

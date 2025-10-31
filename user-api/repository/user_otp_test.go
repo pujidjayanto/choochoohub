@@ -30,16 +30,14 @@ func TestUserOtpRepository_Create(t *testing.T) {
 		is.NoErr(err)
 		is.True(user.ID != uuid.Nil)
 
-		otp := &model.UserOtp{
+		otp, err := repo.Create(ctx, &model.UserOtp{
 			UserID:      user.ID,
 			Channel:     "email",
 			Destination: "otpuser@example.com",
 			OTPHash:     "hashedotp",
 			Purpose:     "signup",
 			ExpiresAt:   time.Now().Add(5 * time.Minute),
-		}
-
-		err = repo.Create(ctx, otp)
+		})
 		is.NoErr(err)
 
 		var fetched model.UserOtp

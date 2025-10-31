@@ -20,7 +20,7 @@ var _ repository.UserOtpRepository = &UserOtpRepositoryMock{}
 //
 //		// make and configure a mocked repository.UserOtpRepository
 //		mockedUserOtpRepository := &UserOtpRepositoryMock{
-//			CreateFunc: func(ctx context.Context, user *model.UserOtp) error {
+//			CreateFunc: func(ctx context.Context, user *model.UserOtp) (*model.UserOtp, error) {
 //				panic("mock out the Create method")
 //			},
 //		}
@@ -31,7 +31,7 @@ var _ repository.UserOtpRepository = &UserOtpRepositoryMock{}
 //	}
 type UserOtpRepositoryMock struct {
 	// CreateFunc mocks the Create method.
-	CreateFunc func(ctx context.Context, user *model.UserOtp) error
+	CreateFunc func(ctx context.Context, user *model.UserOtp) (*model.UserOtp, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -47,7 +47,7 @@ type UserOtpRepositoryMock struct {
 }
 
 // Create calls CreateFunc.
-func (mock *UserOtpRepositoryMock) Create(ctx context.Context, user *model.UserOtp) error {
+func (mock *UserOtpRepositoryMock) Create(ctx context.Context, user *model.UserOtp) (*model.UserOtp, error) {
 	if mock.CreateFunc == nil {
 		panic("UserOtpRepositoryMock.CreateFunc: method is nil but UserOtpRepository.Create was just called")
 	}

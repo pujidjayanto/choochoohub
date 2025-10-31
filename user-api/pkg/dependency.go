@@ -6,18 +6,22 @@ import (
 
 	"github.com/pujidjayanto/choochoohub/user-api/pkg/db"
 	"github.com/pujidjayanto/choochoohub/user-api/pkg/eventbus"
+	"github.com/pujidjayanto/choochoohub/user-api/pkg/kafkaproducer"
 	"github.com/pujidjayanto/choochoohub/user-api/pkg/logger"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
 type Dependency struct {
-	DB       db.DatabaseHandler
-	Logger   *logrus.Logger
-	EventBus eventbus.EventBus
+	DB            db.DatabaseHandler
+	Logger        *logrus.Logger
+	EventBus      eventbus.EventBus
+	KafkaProducer kafkaproducer.Producer
 }
 
-func NewDependency(dbDsn string) (*Dependency, error) {
+func NewDependency(dbDsn, kafkaHost string) (*Dependency, error) {
+	loggerInstance := logger.GetLogger()
+
 	database, err := db.InitDatabaseHandler(dbDsn, &gorm.Config{
 		PrepareStmt:            true,
 		SkipDefaultTransaction: true,
@@ -33,8 +37,9 @@ func NewDependency(dbDsn string) (*Dependency, error) {
 	}
 
 	return &Dependency{
-		DB:       database,
-		EventBus: eventbus.New(),
-		Logger:   logger.GetLogger(),
+		DB:            database,
+		EventBus:      eventbus.New(),
+		Logger:        loggerInstance,
+		KafkaProducer: kafkaproducer.NewProducer(kafkaHost, loggerInstance),
 	}, nil
 }

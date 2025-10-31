@@ -21,6 +21,9 @@ type UserOtp struct {
 	UpdatedAt    time.Time
 
 	User *User `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
+
+	// ignore field https://gorm.io/docs/models.html#Field-Level-Permission
+	OTPCode string `gorm:"-"`
 }
 
 // BeforeCreate generates UUID if not set
