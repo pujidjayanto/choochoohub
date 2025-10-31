@@ -8,7 +8,7 @@ import (
 	"github.com/pujidjayanto/choochoohub/user-api/apperror"
 	"github.com/pujidjayanto/choochoohub/user-api/dto"
 	"github.com/pujidjayanto/choochoohub/user-api/model"
-	"github.com/pujidjayanto/choochoohub/user-api/pkg/pwd"
+	"github.com/pujidjayanto/choochoohub/user-api/pkg/stringhash"
 	"github.com/pujidjayanto/choochoohub/user-api/repository"
 	"gorm.io/gorm"
 )
@@ -28,7 +28,7 @@ func NewSignupUsecase(userRepository repository.UserRepository) SignUpUsecase {
 }
 
 func (signUpUsecase *signUpUsecase) Create(c context.Context, req dto.SignupRequest) error {
-	hashedPwd, err := pwd.Hash(req.Password)
+	hashedPwd, err := stringhash.Hash(req.Password)
 	if err != nil {
 		return apperror.NewAppError(http.StatusInternalServerError, apperror.CodeInternalServerError, err)
 	}

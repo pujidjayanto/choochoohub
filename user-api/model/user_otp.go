@@ -13,7 +13,7 @@ type UserOtp struct {
 	Channel      UserOtpChannel `gorm:"type:varchar(20);not null"`  // email | sms
 	Destination  string         `gorm:"type:varchar(255);not null"` // email or phone
 	OTPHash      string         `gorm:"type:text;not null"`         // hashed otp
-	Purpose      string         `gorm:"type:varchar(50);not null"`  // signup | login | password_reset
+	Purpose      UserOtpPurpose `gorm:"type:varchar(50);not null"`  // signup | login | password_reset
 	Status       UserOtpStatus  `gorm:"type:varchar(20);not null;default:'pending'"`
 	SendAttempts int            `gorm:"not null;default:1"`
 	ExpiresAt    time.Time      `gorm:"type:timestamptz;not null"`
@@ -28,5 +28,14 @@ func (o *UserOtp) BeforeCreate(tx *gorm.DB) (err error) {
 	if o.ID == uuid.Nil {
 		o.ID = uuid.New()
 	}
+
+	if o.Status == "" {
+		o.Status = UserOtpStatusPending
+	}
+
+	if o.SendAttempts < 1 {
+		o.SendAttempts = 1
+	}
+
 	return
 }

@@ -16,6 +16,10 @@ type userRepository struct {
 	db db.DatabaseHandler
 }
 
+func NewUserRepository(db db.DatabaseHandler) UserRepository {
+	return &userRepository{db: db}
+}
+
 func (r *userRepository) Create(ctx context.Context, user *model.User) error {
 	return r.db.GetDB(ctx).Create(user).Error
 }
@@ -28,8 +32,4 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*model.
 	}
 
 	return &user, nil
-}
-
-func NewUserRepository(db db.DatabaseHandler) UserRepository {
-	return &userRepository{db: db}
 }

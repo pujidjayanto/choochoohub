@@ -5,11 +5,13 @@ import (
 )
 
 type Dependency struct {
-	UserRepository UserRepository
+	UserRepository    UserRepository
+	UserOtpRepository UserOtpRepository
 }
 
 func NewDependency(dbHandler db.DatabaseHandler) Dependency {
 	return Dependency{
-		UserRepository: NewUserRepository(dbHandler),
+		UserRepository:    NewUserRepository(dbHandler),
+		UserOtpRepository: NewUserOtpRepository(dbHandler),
 	}
 }

@@ -1,4 +1,4 @@
-package pwd
+package stringhash
 
 import (
 	"golang.org/x/crypto/bcrypt"
