@@ -20,7 +20,7 @@ func New() EventBus {
 }
 
 func (e *eventBus) Publish(event string, payload interface{}) {
-	e.bus.Publish(event, payload, false)
+	e.bus.Publish(event, payload)
 }
 
 func (e *eventBus) Subscribe(event string, handler func(payload interface{})) {
