@@ -7,12 +7,9 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/pujidjayanto/choochoohub/user-api/api"
-	"github.com/pujidjayanto/choochoohub/user-api/pkg/db"
-	"github.com/pujidjayanto/choochoohub/user-api/pkg/eventbus"
-	"github.com/pujidjayanto/choochoohub/user-api/pkg/logger"
+	"github.com/pujidjayanto/choochoohub/user-api/pkg"
 	"github.com/pujidjayanto/choochoohub/user-api/repository"
 	"github.com/pujidjayanto/choochoohub/user-api/usecase"
-	"gorm.io/gorm"
 )
 
 func NewApplicationServer() (*http.Server, CleanupFunc, error) {
@@ -20,30 +17,19 @@ func NewApplicationServer() (*http.Server, CleanupFunc, error) {
 		return nil, nil, err
 	}
 
-	database, err := db.InitDatabaseHandler(GetDatabaseDSN(), &gorm.Config{
-		PrepareStmt:            true,
-		SkipDefaultTransaction: true,
-		TranslateError:         true,
-		NowFunc:                func() time.Time { return time.Now().UTC() },
-	})
+	sharedDependency, err := pkg.NewDependency(GetDatabaseDSN())
 	if err != nil {
 		return nil, nil, err
 	}
 
-	if err = database.Ping(context.Background()); err != nil {
-		return nil, nil, err
-	}
-
-	eventBus := eventbus.New()
-	repositories := repository.NewDependency(database)
-	usecases := usecase.NewDependency(repositories, eventBus)
+	repositories := repository.NewDependency(sharedDependency.DB)
+	usecases := usecase.NewDependency(repositories, sharedDependency.EventBus)
 	apis := api.NewDependency(usecases)
-	log := logger.GetLogger()
 
-	RegisterOtpSubscriber(eventBus, usecases.OtpUsecase)
+	RegisterOtpSubscriber(sharedDependency.EventBus, usecases.OtpUsecase)
 
 	router := echo.New()
-	routes(router, apis, log)
+	routes(router, apis, sharedDependency.Logger)
 
 	server := &http.Server{
 		Addr:         GetServerPort(),
@@ -58,7 +44,7 @@ func NewApplicationServer() (*http.Server, CleanupFunc, error) {
 	})
 
 	dbCleanup := CleanupFunc(func(ctx context.Context) error {
-		return database.Close()
+		return sharedDependency.DB.Close()
 	})
 
 	cleanup := ChainCleanup(httpCleanup, dbCleanup)
