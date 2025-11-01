@@ -9,3 +9,9 @@ const (
 	CodeConflict            = 1005
 	CodeValidationFailed    = 1006
 )
+
+const (
+	OtpNotFound     = 1007
+	OtpNotMatch     = 1008
+	OtpMaxAttempted = 1009
+)

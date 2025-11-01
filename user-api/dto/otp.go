@@ -13,3 +13,9 @@ type OtpRequest struct {
 	Purpose     string
 	ExpiredAt   time.Time
 }
+
+type VerifyOtpRequest struct {
+	Destination string `json:"destination" validate:"required"`
+	Purpose     string `json:"purpose" validate:"required"`
+	OtpCode     string `json:"otpCode" validate:"required"`
+}

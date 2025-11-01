@@ -48,4 +48,5 @@ func routes(router *echo.Echo, apis api.Dependency, log *logrus.Logger) {
 
 	v1 := router.Group("v1")
 	v1.POST("/signup", apis.UserApi.SignUp)
+	v1.POST("/signup/verify-otp", apis.OtpApi.Verify)
 }

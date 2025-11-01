@@ -36,7 +36,7 @@ func (p *producer) SendMessage(ctx context.Context, topic string, partition int,
 		}
 	}()
 
-	conn.SetWriteDeadline(time.Now().Add(3 * time.Second))
+	_ = conn.SetWriteDeadline(time.Now().Add(3 * time.Second))
 
 	_, err = conn.WriteMessages(kafka.Message{
 		Value: message,

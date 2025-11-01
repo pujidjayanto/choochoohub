@@ -23,6 +23,12 @@ var _ repository.UserOtpRepository = &UserOtpRepositoryMock{}
 //			CreateFunc: func(ctx context.Context, user *model.UserOtp) (*model.UserOtp, error) {
 //				panic("mock out the Create method")
 //			},
+//			FindyByDestinationAndPurposeFunc: func(ctx context.Context, destination string, purpose string) (*model.UserOtp, error) {
+//				panic("mock out the FindyByDestinationAndPurpose method")
+//			},
+//			UpdateOtpFunc: func(ctx context.Context, otp *model.UserOtp) error {
+//				panic("mock out the UpdateOtp method")
+//			},
 //		}
 //
 //		// use mockedUserOtpRepository in code that requires repository.UserOtpRepository
@@ -33,6 +39,12 @@ type UserOtpRepositoryMock struct {
 	// CreateFunc mocks the Create method.
 	CreateFunc func(ctx context.Context, user *model.UserOtp) (*model.UserOtp, error)
 
+	// FindyByDestinationAndPurposeFunc mocks the FindyByDestinationAndPurpose method.
+	FindyByDestinationAndPurposeFunc func(ctx context.Context, destination string, purpose string) (*model.UserOtp, error)
+
+	// UpdateOtpFunc mocks the UpdateOtp method.
+	UpdateOtpFunc func(ctx context.Context, otp *model.UserOtp) error
+
 	// calls tracks calls to the methods.
 	calls struct {
 		// Create holds details about calls to the Create method.
@@ -42,8 +54,26 @@ type UserOtpRepositoryMock struct {
 			// User is the user argument value.
 			User *model.UserOtp
 		}
+		// FindyByDestinationAndPurpose holds details about calls to the FindyByDestinationAndPurpose method.
+		FindyByDestinationAndPurpose []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Destination is the destination argument value.
+			Destination string
+			// Purpose is the purpose argument value.
+			Purpose string
+		}
+		// UpdateOtp holds details about calls to the UpdateOtp method.
+		UpdateOtp []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Otp is the otp argument value.
+			Otp *model.UserOtp
+		}
 	}
-	lockCreate sync.RWMutex
+	lockCreate                       sync.RWMutex
+	lockFindyByDestinationAndPurpose sync.RWMutex
+	lockUpdateOtp                    sync.RWMutex
 }
 
 // Create calls CreateFunc.
@@ -79,5 +109,81 @@ func (mock *UserOtpRepositoryMock) CreateCalls() []struct {
 	mock.lockCreate.RLock()
 	calls = mock.calls.Create
 	mock.lockCreate.RUnlock()
+	return calls
+}
+
+// FindyByDestinationAndPurpose calls FindyByDestinationAndPurposeFunc.
+func (mock *UserOtpRepositoryMock) FindyByDestinationAndPurpose(ctx context.Context, destination string, purpose string) (*model.UserOtp, error) {
+	if mock.FindyByDestinationAndPurposeFunc == nil {
+		panic("UserOtpRepositoryMock.FindyByDestinationAndPurposeFunc: method is nil but UserOtpRepository.FindyByDestinationAndPurpose was just called")
+	}
+	callInfo := struct {
+		Ctx         context.Context
+		Destination string
+		Purpose     string
+	}{
+		Ctx:         ctx,
+		Destination: destination,
+		Purpose:     purpose,
+	}
+	mock.lockFindyByDestinationAndPurpose.Lock()
+	mock.calls.FindyByDestinationAndPurpose = append(mock.calls.FindyByDestinationAndPurpose, callInfo)
+	mock.lockFindyByDestinationAndPurpose.Unlock()
+	return mock.FindyByDestinationAndPurposeFunc(ctx, destination, purpose)
+}
+
+// FindyByDestinationAndPurposeCalls gets all the calls that were made to FindyByDestinationAndPurpose.
+// Check the length with:
+//
+//	len(mockedUserOtpRepository.FindyByDestinationAndPurposeCalls())
+func (mock *UserOtpRepositoryMock) FindyByDestinationAndPurposeCalls() []struct {
+	Ctx         context.Context
+	Destination string
+	Purpose     string
+} {
+	var calls []struct {
+		Ctx         context.Context
+		Destination string
+		Purpose     string
+	}
+	mock.lockFindyByDestinationAndPurpose.RLock()
+	calls = mock.calls.FindyByDestinationAndPurpose
+	mock.lockFindyByDestinationAndPurpose.RUnlock()
+	return calls
+}
+
+// UpdateOtp calls UpdateOtpFunc.
+func (mock *UserOtpRepositoryMock) UpdateOtp(ctx context.Context, otp *model.UserOtp) error {
+	if mock.UpdateOtpFunc == nil {
+		panic("UserOtpRepositoryMock.UpdateOtpFunc: method is nil but UserOtpRepository.UpdateOtp was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+		Otp *model.UserOtp
+	}{
+		Ctx: ctx,
+		Otp: otp,
+	}
+	mock.lockUpdateOtp.Lock()
+	mock.calls.UpdateOtp = append(mock.calls.UpdateOtp, callInfo)
+	mock.lockUpdateOtp.Unlock()
+	return mock.UpdateOtpFunc(ctx, otp)
+}
+
+// UpdateOtpCalls gets all the calls that were made to UpdateOtp.
+// Check the length with:
+//
+//	len(mockedUserOtpRepository.UpdateOtpCalls())
+func (mock *UserOtpRepositoryMock) UpdateOtpCalls() []struct {
+	Ctx context.Context
+	Otp *model.UserOtp
+} {
+	var calls []struct {
+		Ctx context.Context
+		Otp *model.UserOtp
+	}
+	mock.lockUpdateOtp.RLock()
+	calls = mock.calls.UpdateOtp
+	mock.lockUpdateOtp.RUnlock()
 	return calls
 }
