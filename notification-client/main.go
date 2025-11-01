@@ -15,7 +15,7 @@ func main() {
 		GroupID: "otp-consumer-group",
 	})
 
-	defer reader.Close()
+	defer reader.Close() //nolint:errcheck
 
 	fmt.Println("Listening for messages on topic otp.created...")
 
