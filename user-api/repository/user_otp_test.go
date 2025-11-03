@@ -49,3 +49,77 @@ func TestUserOtpRepository_Create(t *testing.T) {
 		is.Equal(fetched.Status, model.UserOtpStatus("pending"))
 	})
 }
+
+func TestUserOtpRepository_FindyByDestinationAndPurpose(t *testing.T) {
+	is := is.New(t)
+	db := testutils.NewTestDb(t)
+
+	testutils.WithTransaction(t, db, func(ctx context.Context) {
+		repo := repository.NewUserOtpRepository(db)
+
+		userRepo := repository.NewUserRepository(db)
+		user := &model.User{
+			Email:        "findotp@example.com",
+			PasswordHash: "hashedpassword",
+		}
+		_, err := userRepo.Create(ctx, user)
+		is.NoErr(err)
+
+		// Create an OTP for that user
+		expectedOtp := &model.UserOtp{
+			UserID:      user.ID,
+			Channel:     "email",
+			Destination: "findotp@example.com",
+			OTPHash:     "hashedotp",
+			Purpose:     "signup",
+			ExpiresAt:   time.Now().Add(5 * time.Minute),
+		}
+		_, err = repo.Create(ctx, expectedOtp)
+		is.NoErr(err)
+
+		found, err := repo.FindyByDestinationAndPurpose(ctx, expectedOtp.Destination, string(expectedOtp.Purpose))
+		is.NoErr(err)
+
+		is.Equal(found.Destination, expectedOtp.Destination)
+		is.Equal(found.Purpose, expectedOtp.Purpose)
+		is.Equal(found.UserID, expectedOtp.UserID)
+	})
+}
+
+func TestUserOtpRepository_UpdateOtp(t *testing.T) {
+	is := is.New(t)
+	db := testutils.NewTestDb(t)
+
+	testutils.WithTransaction(t, db, func(ctx context.Context) {
+		repo := repository.NewUserOtpRepository(db)
+
+		userRepo := repository.NewUserRepository(db)
+		user := &model.User{
+			Email:        "updateotp@example.com",
+			PasswordHash: "hashedpassword",
+		}
+		_, err := userRepo.Create(ctx, user)
+		is.NoErr(err)
+
+		otp := &model.UserOtp{
+			UserID:      user.ID,
+			Channel:     "email",
+			Destination: "updateotp@example.com",
+			OTPHash:     "hashedotp",
+			Purpose:     "signup",
+			ExpiresAt:   time.Now().Add(5 * time.Minute),
+			Status:      model.UserOtpStatusPending,
+		}
+		_, err = repo.Create(ctx, otp)
+		is.NoErr(err)
+
+		otp.Status = model.UserOtpStatusVerified
+		err = repo.UpdateOtp(ctx, otp)
+		is.NoErr(err)
+
+		var fetched model.UserOtp
+		err = db.GetDB(ctx).First(&fetched, "id = ?", otp.ID).Error
+		is.NoErr(err)
+		is.Equal(fetched.Status, model.UserOtpStatusVerified)
+	})
+}
