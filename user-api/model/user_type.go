@@ -3,7 +3,7 @@ package model
 type UserType string
 
 const (
-	UserTypeUnverified UserType = "unverified"
-	UserTypeBasic      UserType = "basic"
-	UserTypePremium    UserType = "premium"
+	UserTypeStarter UserType = "starter" // signed up & OTP verified, minimal profile
+	UserTypeBasic   UserType = "basic"   // profile completed
+	UserTypePremium UserType = "premium" // high transaction user
 )

@@ -6,6 +6,7 @@ import (
 
 	"github.com/pujidjayanto/choochoohub/user-api/dto"
 	"github.com/pujidjayanto/choochoohub/user-api/pkg"
+	"github.com/pujidjayanto/choochoohub/user-api/repository"
 	"github.com/pujidjayanto/choochoohub/user-api/usecase"
 )
 
@@ -40,6 +41,28 @@ func RegisterOtpSubscriber(shared *pkg.Dependency, otpUsecase usecase.OtpUsecase
 		err = shared.KafkaProducer.SendMessage(context.Background(), "otp.created", 0, eventData)
 		if err != nil {
 			shared.Logger.WithField("err", err).Info("failed to send kafka message")
+		}
+	})
+}
+
+func VerifiedOtpSubscriber(shared *pkg.Dependency, userRepository repository.UserRepository) {
+	shared.EventBus.Subscribe("otp.verified", func(emailAny any) {
+		email, ok := emailAny.(string)
+		if !ok {
+			return
+		}
+
+		user, err := userRepository.FindByEmail(context.Background(), email)
+		if err != nil {
+			shared.Logger.WithField("err", err).WithField("email", email).Info("failed to get user")
+			return
+		}
+
+		user.IsVerified = true
+		err = userRepository.Update(context.Background(), user)
+		if err != nil {
+			shared.Logger.WithField("err", err).WithField("id", user.ID).Info("failed to update user")
+			return
 		}
 	})
 }

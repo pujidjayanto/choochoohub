@@ -1,17 +1,17 @@
 -- +goose Up
 -- +goose StatementBegin
-create table users (
+create table public.users (
   id uuid primary key,
   email varchar(255) not null unique,
   password_hash text not null,
-  user_type varchar(20) not null default 'unverified',
+  user_type varchar(20) not null default 'starter',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
 create index idx_users_email on users(email);
 
-create table user_profiles (
+create table public.user_profiles (
   id uuid primary key,
   user_id uuid not null references users(id) on delete cascade,
   phone varchar(20) unique,

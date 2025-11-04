@@ -10,6 +10,7 @@ import (
 type UserRepository interface {
 	Create(ctx context.Context, user *model.User) (*model.User, error)
 	FindByEmail(ctx context.Context, email string) (*model.User, error)
+	Update(ctx context.Context, user *model.User) error
 }
 
 type userRepository struct {
@@ -36,4 +37,12 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*model.
 	}
 
 	return &user, nil
+}
+
+func (r *userRepository) Update(ctx context.Context, user *model.User) error {
+	if err := r.db.GetDB(ctx).Save(user).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

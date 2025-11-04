@@ -31,12 +31,16 @@ func loadTestDatabaseDsn() (string, error) {
 		dbName   = os.Getenv("TEST_DB_NAME")
 	)
 
+	if password != "" {
+		password = ":" + password
+	}
+
 	return fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		host,
-		port,
+		"postgres://%s%s@%s:%s/%s?sslmode=disable",
 		user,
 		password,
+		host,
+		port,
 		dbName,
 	), nil
 }

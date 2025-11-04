@@ -105,17 +105,21 @@ func loadConfiguration() error {
 // Utility functions
 func GetDatabaseDSN() string {
 	checkInitialized()
+	password := globalConfig.database.password
+	if password != "" {
+		password = ":" + password
+	}
+
 	return fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		"postgres://%s%s@%s:%s/%s?sslmode=%s",
+		globalConfig.database.user,
+		password,
 		globalConfig.database.host,
 		globalConfig.database.port,
-		globalConfig.database.user,
-		globalConfig.database.password,
 		globalConfig.database.name,
 		globalConfig.database.ssl,
 	)
 }
-
 func GetServerPort() string {
 	checkInitialized()
 	port := globalConfig.server.port

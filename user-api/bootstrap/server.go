@@ -27,6 +27,7 @@ func NewApplicationServer() (*http.Server, CleanupFunc, error) {
 	apis := api.NewDependency(usecases)
 
 	RegisterOtpSubscriber(sharedDependency, usecases.OtpUsecase)
+	VerifiedOtpSubscriber(sharedDependency, repositories.UserRepository)
 
 	router := echo.New()
 	routes(router, apis, sharedDependency.Logger)

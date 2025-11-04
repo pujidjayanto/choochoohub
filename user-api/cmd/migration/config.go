@@ -63,24 +63,32 @@ func loadConfiguration() (*Config, error) {
 }
 
 func (e *Config) databaseDsn() string {
+	password := e.Database.Password
+	if password != "" {
+		password = ":" + password
+	}
 	return fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=UTC",
+		"postgres://%s%s@%s:%s/%s?sslmode=%s&timezone=UTC",
+		e.Database.User,
+		password,
 		e.Database.Host,
 		e.Database.Port,
-		e.Database.User,
-		e.Database.Password,
 		e.Database.Name,
 		e.Database.Ssl,
 	)
 }
 
 func (e *Config) testDatabaseDsn() string {
+	password := e.TestDatabase.Password
+	if password != "" {
+		password = ":" + password
+	}
 	return fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=UTC",
+		"postgres://%s%s@%s:%s/%s?sslmode=%s&timezone=UTC",
+		e.TestDatabase.User,
+		password,
 		e.TestDatabase.Host,
 		e.TestDatabase.Port,
-		e.TestDatabase.User,
-		e.TestDatabase.Password,
 		e.TestDatabase.Name,
 		e.TestDatabase.Ssl,
 	)

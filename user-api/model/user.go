@@ -11,7 +11,8 @@ type User struct {
 	ID           uuid.UUID `gorm:"primaryKey"`
 	Email        string    `gorm:"not null;unique"`
 	PasswordHash string    `gorm:"not null"`
-	UserType     UserType  `gorm:"type:varchar(20);not null;default:'unverified'"`
+	UserType     UserType  `gorm:"type:varchar(20);not null;default:'starter'"`
+	IsVerified   bool
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	Profile      *UserProfile `gorm:"constraint:OnDelete:CASCADE;"` // foreignKey:UserID;
@@ -24,7 +25,7 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 		u.ID = uuid.New()
 	}
 	if u.UserType == "" {
-		u.UserType = "unverified"
+		u.UserType = "starter"
 	}
 	return
 }

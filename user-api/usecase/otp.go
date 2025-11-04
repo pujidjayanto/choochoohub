@@ -8,6 +8,7 @@ import (
 	"github.com/pujidjayanto/choochoohub/user-api/apperror"
 	"github.com/pujidjayanto/choochoohub/user-api/dto"
 	"github.com/pujidjayanto/choochoohub/user-api/model"
+	"github.com/pujidjayanto/choochoohub/user-api/pkg/eventbus"
 	"github.com/pujidjayanto/choochoohub/user-api/pkg/otpcode"
 	"github.com/pujidjayanto/choochoohub/user-api/pkg/stringhash"
 	"github.com/pujidjayanto/choochoohub/user-api/repository"
@@ -23,10 +24,11 @@ type OtpUsecase interface {
 
 type otpUsecase struct {
 	otpRepository repository.UserOtpRepository
+	eventBus      eventbus.EventBus
 }
 
-func NewOtpUsecase(otpRepository repository.UserOtpRepository) OtpUsecase {
-	return &otpUsecase{otpRepository}
+func NewOtpUsecase(otpRepository repository.UserOtpRepository, eventBus eventbus.EventBus) OtpUsecase {
+	return &otpUsecase{otpRepository, eventBus}
 }
 
 func (u *otpUsecase) Create(c context.Context, req dto.OtpRequest) (*model.UserOtp, error) {
@@ -90,6 +92,8 @@ func (u *otpUsecase) VerifyOtp(c context.Context, req dto.VerifyOtpRequest) erro
 	if err != nil {
 		return apperror.NewAppError(http.StatusInternalServerError, apperror.CodeInternalServerError, err)
 	}
+
+	u.eventBus.Publish("otp.verified", otp.Destination)
 
 	return nil
 }

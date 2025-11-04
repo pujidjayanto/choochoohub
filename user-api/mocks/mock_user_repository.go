@@ -26,6 +26,9 @@ var _ repository.UserRepository = &UserRepositoryMock{}
 //			FindByEmailFunc: func(ctx context.Context, email string) (*model.User, error) {
 //				panic("mock out the FindByEmail method")
 //			},
+//			UpdateFunc: func(ctx context.Context, user *model.User) error {
+//				panic("mock out the Update method")
+//			},
 //		}
 //
 //		// use mockedUserRepository in code that requires repository.UserRepository
@@ -38,6 +41,9 @@ type UserRepositoryMock struct {
 
 	// FindByEmailFunc mocks the FindByEmail method.
 	FindByEmailFunc func(ctx context.Context, email string) (*model.User, error)
+
+	// UpdateFunc mocks the Update method.
+	UpdateFunc func(ctx context.Context, user *model.User) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -55,9 +61,17 @@ type UserRepositoryMock struct {
 			// Email is the email argument value.
 			Email string
 		}
+		// Update holds details about calls to the Update method.
+		Update []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// User is the user argument value.
+			User *model.User
+		}
 	}
 	lockCreate      sync.RWMutex
 	lockFindByEmail sync.RWMutex
+	lockUpdate      sync.RWMutex
 }
 
 // Create calls CreateFunc.
@@ -129,5 +143,41 @@ func (mock *UserRepositoryMock) FindByEmailCalls() []struct {
 	mock.lockFindByEmail.RLock()
 	calls = mock.calls.FindByEmail
 	mock.lockFindByEmail.RUnlock()
+	return calls
+}
+
+// Update calls UpdateFunc.
+func (mock *UserRepositoryMock) Update(ctx context.Context, user *model.User) error {
+	if mock.UpdateFunc == nil {
+		panic("UserRepositoryMock.UpdateFunc: method is nil but UserRepository.Update was just called")
+	}
+	callInfo := struct {
+		Ctx  context.Context
+		User *model.User
+	}{
+		Ctx:  ctx,
+		User: user,
+	}
+	mock.lockUpdate.Lock()
+	mock.calls.Update = append(mock.calls.Update, callInfo)
+	mock.lockUpdate.Unlock()
+	return mock.UpdateFunc(ctx, user)
+}
+
+// UpdateCalls gets all the calls that were made to Update.
+// Check the length with:
+//
+//	len(mockedUserRepository.UpdateCalls())
+func (mock *UserRepositoryMock) UpdateCalls() []struct {
+	Ctx  context.Context
+	User *model.User
+} {
+	var calls []struct {
+		Ctx  context.Context
+		User *model.User
+	}
+	mock.lockUpdate.RLock()
+	calls = mock.calls.Update
+	mock.lockUpdate.RUnlock()
 	return calls
 }

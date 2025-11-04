@@ -13,6 +13,6 @@ type Dependency struct {
 func NewDependency(repositories repository.Dependency, eventBus eventbus.EventBus) Dependency {
 	return Dependency{
 		SignUpUsecase: NewSignupUsecase(repositories.UserRepository, eventBus),
-		OtpUsecase:    NewOtpUsecase(repositories.UserOtpRepository),
+		OtpUsecase:    NewOtpUsecase(repositories.UserOtpRepository, eventBus),
 	}
 }
