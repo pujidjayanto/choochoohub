@@ -21,17 +21,16 @@ func routes(app *fiber.App, apis api.Dependency, log *logrus.Logger) {
 		duration := time.Since(start)
 		requestId := c.Locals("requestid")
 		log.WithFields(logrus.Fields{
-			"method":     c.Method(),
-			"path":       c.Path(),
-			"status":     c.Response().StatusCode(),
-			"duration":   duration.Seconds(),
-			"request_id": requestId,
-		}).Info("Incoming request")
+			"method":              c.Method(),
+			"path":                c.Path(),
+			"status":              c.Response().StatusCode(),
+			"duration_in_seconds": duration.Seconds(),
+			"request_id":          requestId,
+		}).Info("incoming request")
 
 		return err
 	})
 
 	v1 := app.Group("v1")
-	v1.Post("/signin", apis.UserApi.Signin)
 	v1.Post("/signup", apis.UserApi.Signup)
 }

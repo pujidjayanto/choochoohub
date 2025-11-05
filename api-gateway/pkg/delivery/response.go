@@ -7,8 +7,9 @@ type SuccessResponse struct {
 }
 
 type ErrorResponse struct {
-	Error string `json:"error"`
-	Trace string `json:"trace,omitempty"`
+	Error     string `json:"error"`
+	ErrorCode int    `json:"errorCode"`
+	Trace     string `json:"trace,omitempty"`
 }
 
 var SuccessMessage = "ok"
