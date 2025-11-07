@@ -1,4 +1,4 @@
-.PHONY: migrate rollback create-migration seed create-seed run mock test
+.PHONY: migrate rollback create-migration seed create-seed lint
 
 # Run migrations up
 migrate:
@@ -21,37 +21,6 @@ seed:
 create-seed:
 	@echo "Usage: make create-seed NAME=your_seed_name"
 	@go run ./cmd/migration -create-seed $(NAME)
-
-# Run the user-api
-run:
-	go run ./cmd/user-api
-
-# Generate mocks
-mock:
-	@echo "Cleaning old mocks..."
-	@rm -rf ./mocks
-	@mkdir -p ./mocks
-	@echo "Generating mocks using moq..."
-
-	@moq -out mocks/mock_user_repository.go -pkg mocks ./repository UserRepository
-	@moq -out mocks/mock_user_otp_repository.go -pkg mocks ./repository UserOtpRepository
-
-	@moq -out mocks/mock_signup_usecase.go -pkg mocks ./usecase SignUpUsecase
-	@moq -out mocks/mock_otp_usecase.go -pkg mocks ./usecase OtpUsecase
-
-	@moq -out mocks/mock_user_api.go -pkg mocks ./api UserApi
-	@moq -out mocks/mock_otp_api.go -pkg mocks ./api OtpApi
-
-	@moq -out mocks/mock_pkg_db_gorm.go -pkg mocks ./pkg/db/ DatabaseHandler
-	@moq -out mocks/mock_pkg_eventbus.go -pkg mocks ./pkg/eventbus/ EventBus
-	@moq -out mocks/mock_pkg_kafkaproducer.go -pkg mocks ./pkg/kafkaproducer/ Producer
-
-	@echo "All mocks generated in ./mocks"
-
-
-test:
-	@echo "Running tests..."
-	go test -v ./...
 
 lint:
 	@echo "Running golint..."
