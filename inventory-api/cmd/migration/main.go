@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/pressly/goose/v3"
-	"github.com/pujidjayanto/choochoohub/user-api/pkg/logger"
+	"github.com/pujidjayanto/choochoohub/inventory-api/pkg/logger"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

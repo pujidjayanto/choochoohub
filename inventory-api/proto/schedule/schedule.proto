@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+
+option go_package = "github.com/pujidjayanto/choochoohub/inventory-api/proto/schedule";
+
+service TrainSchedule {
+  rpc Search(SearchScheduleRequest) returns (SearchScheduleResponse);
+}
+
+message SearchScheduleRequest {
+  string departure_station_id = 1;
+  string destination_station_id = 2;
+  string departure_date = 3; // ISO date "2025-11-09"
+  int32 passenger_count = 4;
+  bool round_trip = 5;
+}
+
+message SearchScheduleResponse {
+  repeated TrainScheduleItem schedules = 1;
+}
+
+message TrainScheduleItem {
+  string train_id = 1;
+  string train_name = 2;
+  string train_code = 3;
+  string class_name = 4;
+  string subclass_name = 5;
+  string departure_station_name = 6;
+  string departure_time = 7;
+  string destination_station_name = 8;
+  string arrival_time = 9;
+  string duration = 10;
+  double starting_price = 11;
+  bool available = 12;
+}
