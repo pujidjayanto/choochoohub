@@ -1,7 +1,6 @@
 syntax = "proto3";
 
-
-option go_package = "github.com/pujidjayanto/choochoohub/inventory-api/proto/schedule";
+option go_package = "github.com/pujidjayanto/choochoohub/inventory-api/proto";
 
 service TrainSchedule {
   rpc Search(SearchScheduleRequest) returns (SearchScheduleResponse);

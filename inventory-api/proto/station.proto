@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "github.com/pujidjayanto/choochoohub/inventory-api/proto";
+
+service StationService {
+  rpc ListStations (ListStationsRequest) returns (ListStationsResponse);
+}
+
+message ListStationsRequest {
+}
+
+message ListStationsResponse {
+  repeated StationItem stations = 1;
+}
+
+message StationItem {
+  string id = 1;
+  string code = 2;
+  string name = 3;
+  string city = 4;
+}
