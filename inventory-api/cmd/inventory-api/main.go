@@ -17,8 +17,10 @@ func main() {
 
 	lis, err := net.Listen("tcp", app.ServerAddr)
 	if err != nil {
-		log.Fatalf("failed to initialize application: %v", err)
+		log.Fatalf("failed to start listener: %v", err)
 	}
+
+	log.Infof("gRPC server is running on %s", app.ServerAddr)
 
 	if err := app.GrpcServer.Serve(lis); err != nil {
 		log.Fatalf("grpc server failed: %v", err)

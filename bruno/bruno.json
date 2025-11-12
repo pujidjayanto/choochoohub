@@ -1,0 +1,19 @@
+{
+  "version": "1",
+  "name": "choochoohub",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ],
+  "size": 0,
+  "filesCount": 0,
+  "protobuf": {
+    "protoFiles": [
+      {
+        "path": "../inventory-api/proto/station.proto",
+        "type": "file"
+      }
+    ]
+  }
+}

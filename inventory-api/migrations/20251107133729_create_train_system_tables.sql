@@ -20,26 +20,26 @@ CREATE TABLE trains (
   subclass_name VARCHAR(100), -- AC, Non-AC, Premium, etc.
   subclass_code VARCHAR(20),
   direction VARCHAR(100) NOT NULL, -- Surabaya - Malang
-  created_at TIMESTAMPZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPZ NOT NULL DEFAULT NOW()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE train_routes (
   id UUID PRIMARY KEY,
-  train_id INT REFERENCES trains(id) ON DELETE CASCADE,
-  station_id INT REFERENCES stations(id),
+  train_id UUID REFERENCES trains(id) ON DELETE CASCADE,
+  station_id UUID REFERENCES stations(id),
   route_order INT NOT NULL,          -- e.g. 1, 2, 3, ...
   arrival_time TIME,                -- nullable for first station
   departure_time TIME,              -- nullable for last station
   cumulative_price NUMERIC(12,2) NOT NULL,
   distance_km NUMERIC(8,2) NOT NULL DEFAULT 0, -- distance from previous station in km
-  created_at TIMESTAMPZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE(train_id, route_order)
 );
 
 CREATE TABLE train_schedules (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY,
   train_id UUID NOT NULL REFERENCES trains(id) ON DELETE CASCADE,
   departure_station_id UUID NOT NULL REFERENCES stations(id),
   destination_station_id UUID NOT NULL REFERENCES stations(id),
@@ -47,7 +47,6 @@ CREATE TABLE train_schedules (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-
 -- +goose StatementEnd
 
 -- +goose Down

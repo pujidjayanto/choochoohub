@@ -25,3 +25,6 @@ create-seed:
 lint:
 	@echo "Running golint..."
 	golangci-lint run ./...
+
+run:
+	go run ./cmd/inventory-api

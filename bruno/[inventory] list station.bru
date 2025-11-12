@@ -1,0 +1,21 @@
+meta {
+  name: [inventory] list station
+  type: grpc
+  seq: 1
+}
+
+grpc {
+  url: localhost:50051
+  method: /StationService/ListStations
+  body: grpc
+  protoPath: ../inventory-api/proto/station.proto
+  auth: none
+  methodType: unary
+}
+
+body:grpc {
+  name: message 1
+  content: '''
+    {}
+  '''
+}

@@ -1,8 +1,8 @@
 package bootstrap
 
 import (
+	grpcApi "github.com/pujidjayanto/choochoohub/inventory-api/api/grpc"
 	"github.com/pujidjayanto/choochoohub/inventory-api/pkg/db"
-	pb "github.com/pujidjayanto/choochoohub/inventory-api/proto"
 	"github.com/pujidjayanto/choochoohub/inventory-api/repository"
 	"github.com/pujidjayanto/choochoohub/inventory-api/service"
 	"google.golang.org/grpc"
@@ -25,9 +25,10 @@ func NewApplicationServer() (*Application, error) {
 
 	repositories := repository.NewDependency(db)
 	services := service.NewDependency(repositories)
+	apis := grpcApi.NewDependency(services)
 
 	grpcServer := grpc.NewServer()
-	pb.RegisterStationServiceServer(grpcServer, &services.StationService)
+	grpcApi.RegisterGrpc(grpcServer, apis.StationGrpcApi)
 
 	return &Application{
 		GrpcServer: grpcServer,
