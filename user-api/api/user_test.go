@@ -23,8 +23,8 @@ func TestUserApi_SignUp(t *testing.T) {
 	is := is.New(t)
 
 	t.Run("success", func(t *testing.T) {
-		mockUC := &mocks.SignUpUsecaseMock{
-			CreateFunc: func(_ context.Context, req dto.SignupRequest) error {
+		mockUC := &mocks.UserUsecaseMock{
+			SignupFunc: func(_ context.Context, req dto.SignupRequest) error {
 				return nil
 			},
 		}
@@ -50,7 +50,7 @@ func TestUserApi_SignUp(t *testing.T) {
 	})
 
 	t.Run("bad request", func(t *testing.T) {
-		mockUC := &mocks.SignUpUsecaseMock{}
+		mockUC := &mocks.UserUsecaseMock{}
 
 		apiHandler := api.NewUserApi(mockUC)
 		e := echo.New()
@@ -69,8 +69,8 @@ func TestUserApi_SignUp(t *testing.T) {
 	})
 
 	t.Run("duplicate email", func(t *testing.T) {
-		mockUC := &mocks.SignUpUsecaseMock{
-			CreateFunc: func(_ context.Context, req dto.SignupRequest) error {
+		mockUC := &mocks.UserUsecaseMock{
+			SignupFunc: func(_ context.Context, req dto.SignupRequest) error {
 				return apperror.NewAppError(http.StatusUnprocessableEntity, apperror.CodeValidationFailed,
 					errors.New("email already exists"))
 			},

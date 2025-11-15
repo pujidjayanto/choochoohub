@@ -15,26 +15,27 @@ import (
 	"gorm.io/gorm"
 )
 
-type SignUpUsecase interface {
-	Create(c context.Context, req dto.SignupRequest) error
+type UserUsecase interface {
+	Signup(c context.Context, req dto.SignupRequest) error
+	Signin(c context.Context, req dto.SigninRequest) (*dto.SigninResponse, error)
 }
 
-type signUpUsecase struct {
+type userUsecase struct {
 	userRepository repository.UserRepository
 	eventBus       eventbus.EventBus
 }
 
-func NewSignupUsecase(userRepository repository.UserRepository, eventBus eventbus.EventBus) SignUpUsecase {
-	return &signUpUsecase{userRepository, eventBus}
+func NewUserUsecase(userRepository repository.UserRepository, eventBus eventbus.EventBus) UserUsecase {
+	return &userUsecase{userRepository, eventBus}
 }
 
-func (signUpUsecase *signUpUsecase) Create(c context.Context, req dto.SignupRequest) error {
+func (u *userUsecase) Signup(c context.Context, req dto.SignupRequest) error {
 	hashedPwd, err := stringhash.Hash(req.Password)
 	if err != nil {
 		return apperror.NewAppError(http.StatusInternalServerError, apperror.CodeInternalServerError, err)
 	}
 
-	user, err := signUpUsecase.userRepository.Create(c, &model.User{PasswordHash: hashedPwd, Email: req.Email})
+	user, err := u.userRepository.Create(c, &model.User{PasswordHash: hashedPwd, Email: req.Email})
 	if err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return apperror.NewAppError(http.StatusUnprocessableEntity, apperror.CodeValidationFailed, err)
@@ -42,7 +43,7 @@ func (signUpUsecase *signUpUsecase) Create(c context.Context, req dto.SignupRequ
 		return apperror.NewAppError(http.StatusInternalServerError, apperror.CodeInternalServerError, err)
 	}
 
-	signUpUsecase.eventBus.Publish("user.created", dto.OtpRequest{
+	u.eventBus.Publish("user.created", dto.OtpRequest{
 		UserId:      user.ID,
 		Channel:     string(model.UserOtpChannelEmail),
 		Destination: user.Email,
@@ -51,4 +52,18 @@ func (signUpUsecase *signUpUsecase) Create(c context.Context, req dto.SignupRequ
 	})
 
 	return nil
+}
+
+func (u *userUsecase) Signin(c context.Context, req dto.SigninRequest) (*dto.SigninResponse, error) {
+	user, err := u.userRepository.FindByEmail(c, req.Email)
+	if err != nil {
+		return nil, apperror.NewAppError(http.StatusUnauthorized, apperror.CodeUnauthorized, err)
+	}
+
+	isMatched := stringhash.Match(user.PasswordHash, req.Password)
+	if !isMatched {
+		return nil, apperror.NewAppError(http.StatusUnauthorized, apperror.CodeUnauthorized, errors.New("password is wrong"))
+	}
+
+	return &dto.SigninResponse{ID: user.ID.String(), Email: user.Email}, nil
 }

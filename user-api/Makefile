@@ -36,7 +36,7 @@ mock:
 	@moq -out mocks/mock_user_repository.go -pkg mocks ./repository UserRepository
 	@moq -out mocks/mock_user_otp_repository.go -pkg mocks ./repository UserOtpRepository
 
-	@moq -out mocks/mock_signup_usecase.go -pkg mocks ./usecase SignUpUsecase
+	@moq -out mocks/mock_user_usecase.go -pkg mocks ./usecase UserUsecase
 	@moq -out mocks/mock_otp_usecase.go -pkg mocks ./usecase OtpUsecase
 
 	@moq -out mocks/mock_user_api.go -pkg mocks ./api UserApi

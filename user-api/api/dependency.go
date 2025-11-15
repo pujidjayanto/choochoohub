@@ -11,7 +11,7 @@ type Dependency struct {
 func NewDependency(usecases usecase.Dependency) Dependency {
 	return Dependency{
 		PingApi: NewPingApi(),
-		UserApi: NewUserApi(usecases.SignUpUsecase),
+		UserApi: NewUserApi(usecases.UserUsecase),
 		OtpApi:  NewOtpApi(usecases.OtpUsecase),
 	}
 }

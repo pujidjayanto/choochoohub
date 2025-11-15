@@ -12,11 +12,11 @@ type UserApi interface {
 }
 
 type userApi struct {
-	signUpUsecase usecase.SignUpUsecase
+	userUsecase usecase.UserUsecase
 }
 
-func NewUserApi(signUpUsecase usecase.SignUpUsecase) UserApi {
-	return &userApi{signUpUsecase}
+func NewUserApi(userUsecase usecase.UserUsecase) UserApi {
+	return &userApi{userUsecase}
 }
 
 func (ua *userApi) SignUp(c echo.Context) error {
@@ -25,7 +25,7 @@ func (ua *userApi) SignUp(c echo.Context) error {
 		return delivery.Failed(c, err)
 	}
 
-	err := ua.signUpUsecase.Create(c.Request().Context(), req)
+	err := ua.userUsecase.Signup(c.Request().Context(), req)
 	if err != nil {
 		return delivery.Failed(c, err)
 	}
